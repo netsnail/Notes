@@ -1,0 +1,135 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-06T17:03:13+08:00
+
+====== bash ======
+Created Wednesday 06 June 2012
+
+===== .bashrc =====
+export ORACLE_HOME=~/apps/instantclient_11_2
+export LD_LIBRARY_PATH=$ORACLE_HOME
+export PATH=$ORACLE_HOME:$PATH
+export PATH=~/java/mvn/bin:~/java/ant/bin:$PATH
+export PATH=~/java/android-sdk-linux/tools:$PATH
+export PATH=~/java/android-sdk-linux/platform-tools:$PATH
+
+export QEMU_AUDIO_DRV=alsa
+
+alias sqlplus='rlwrap sqlplus'
+
+
+===== genisoimage =====
+     ''genisoimage --iso-level 3 -input-charset UTF-8 -o pirate.iso iso/''
+
+===== tar =====
+'''
+tar -cvf admin.tar \
+--exclude=pack.sh \
+--exclude=admin.tar \
+--exclude=xxx.zip \
+*
+'''
+
+
+===== tomcat.sh =====
+'''
+#!/bin/bash
+export JAVA_OPTS="-Xms128m -Xmx512m"
+TOMCAT_HOME="/opt/tomcat$1"
+case "$2" in
+'''
+	'''
+	start)
+	'''
+		'''
+		$TOMCAT_HOME/bin/startup.sh
+		'''
+	'''
+	;;
+	stop)
+		s -eo pid,cmd |grep "$TOMCAT_HOME" |grep -v "grep" |awk '{print $1}' |xargs kill -9 2>/dev/null
+	;;
+	restart)
+	'''
+		'''
+		$0 $1 stop
+		$0 $1 start
+		tail -f $TOMCAT_HOME/logs/catalina.out
+		'''
+	'''
+	;;
+	esac
+	
+	exit 0
+	
+	'''
+===== array.sh =====
+
+'''
+#!/bin/bash
+cd "`dirname $0`"
+arr=($(ls pic))
+max=${#arr[@]}
+z=$((1$(date +%N)%$max))
+for (( i=0; i<$max; i++ ))
+do
+    if [ x$i = x$z ]; then
+        unlink default.jpg
+        ln -s pic/${arr[$i]} default.jpg
+        break
+    fi
+done
+'''
+
+
+===== mm =====
+
+'''
+#!/bin/sh
+NAME=$1
+VERSION=0.1
+EMAIL=root@mail.com
+test -z $NAME && NAME=main
+
+test -d src && [ ! -e Makefile.am ] && {
+  echo create Makefile.am
+  echo "SUBDIRS=src" > Makefile.am
+  cat Makefile.am
+}
+test -e src/Makefile.am || {
+  echo create src/Makefile.am
+  echo "bin_PROGRAMS = ${NAME}" >> src/Makefile.am
+  echo "${NAME}_SOURCES = `cd src; find . -name '*.c' |xargs`" >> src/Makefile.am
+  cat src/Makefile.am
+}
+test -d src || exit
+autoscan
+mv configure.scan configure.in
+sed -i "s/AC_INIT(/AC_INIT([${NAME}], [${VERSION}], [${EMAIL}])\n#AC_INIT(/" configure.in
+sed -i "s/AC_CONFIG_SRCDIR/\nAM_INIT_AUTOMAKE\nAC_CONFIG_SRCDIR/" configure.in
+aclocal
+autoheader
+touch NEWS README AUTHORS ChangeLog
+automake -a
+autoconf
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,18 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-07T10:30:10+08:00
+
+====== kernel ======
+Created Thursday 07 June 2012
+
+===== Makefile =====
+
+'''
+obj-m := hello.o
+KDIR := /lib/modules/$(uname -r)/build
+PWD := $(pwd)
+default:
+        $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+'''
+
+

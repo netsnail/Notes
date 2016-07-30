@@ -1,0 +1,16 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-05-29T15:55:44+08:00
+
+====== webview ======
+Created Sunday 29 May 2016
+
+android guides 和 jquery-mobile-demo
+1. 替换导航条
+	a. $('.dac-nav-list').html($('#nav').html());
+2. 替换 find . -type f -exec sed -i 's@js?v=7@@' {}\;
+	a. css?v=xx
+	b. apis.google.com, fonts.google.com, www.google.com
+3. 权限开启访问file://
+4. [[删除多余的文件]]
+5. 页面增加<base href="">

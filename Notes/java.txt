@@ -1,0 +1,147 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-07T10:48:44+08:00
+
+====== java ======
+Created Thursday 07 June 2012
+
+===== TCPForward.java =====
+
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.util.Iterator;
+
+public class TCPForward {
+	private static int LISTEN_PORT = 8888;
+	private static String FORWARD_IP = "127.0.0.1";
+	private static int FORWARD_PORT = 8804;
+	private static boolean debug = true;
+	private static boolean log = false;
+	private static FileChannel logfile;
+	private static Selector selector = null;
+	private static ByteBuffer buf = ByteBuffer.allocate(1024 * 100);
+
+	private static void usage(String[] args) throws Exception {
+		int len = args.length;
+		if (len < 3) {  			System.out.println("Usage: java TCPForward listen_port forward_ip forward_port [log_file] [debug(true|false)]"); 			System.exit(0);  		} 		LISTEN_PORT = Integer.parseInt(args[0]); 		FORWARD_IP = args[1]; 		FORWARD_PORT = Integer.parseInt(args[2]); 		if (len >= 4) {
+			logfile = new FileOutputStream(args[3]).getChannel();
+			log = true;
+		}
+		if (len >= 5) debug = Boolean.parseBoolean(args[4]);
+	}
+
+	public static void main(String[] args) throws Exception {
+		usage(args);
+		selector = Selector.open();
+		ServerSocketChannel ssChannel = ServerSocketChannel.open();
+		ssChannel.configureBlocking(false);
+		ssChannel.socket().bind(new InetSocketAddress(LISTEN_PORT));
+		ssChannel.register(selector, SelectionKey.OP_ACCEPT);
+		log("Listening on port " + LISTEN_PORT);
+		while (selector.select() > 0) {
+			for (Iterator
+ it = selector.selectedKeys().iterator(); it.hasNext();) {
+				SelectionKey selKey = (SelectionKey) it.next();
+				it.remove();
+				if (!selKey.isValid()) continue;
+				try {
+					processSelectionKey(selKey);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private static void log(Object o) {
+		log("", o);
+	}
+
+	private static void log(String tag, Object o) {
+		try {
+		if (log) logfile.position(logfile.size());
+		if (o instanceof String) {
+			if (debug) System.out.println(tag+o);
+			if (log) {
+				byte[] bs = (tag+(String) o+"\n").getBytes();
+				logfile.write(ByteBuffer.wrap(bs), logfile.position());
+			}
+		}
+		else if (o instanceof ByteBuffer) {
+			ByteBuffer x = (ByteBuffer) o;
+			if (debug) System.out.print(tag+new String(x.array(), 0, x.limit()));
+			if (log) {
+				logfile.write(ByteBuffer.wrap(tag.getBytes()), logfile.position());
+				logfile.write(x, logfile.position()+tag.getBytes().length);
+			}
+		}} catch (Exception e) { e.printStackTrace(); }
+	}
+
+	public static void processSelectionKey(SelectionKey selKey) throws Exception {
+		if (selKey.isAcceptable()) {
+			ServerSocketChannel ssChannel = (ServerSocketChannel) selKey.channel();
+			SocketChannel sChannel = ssChannel.accept();
+			if (sChannel != null) {
+				sChannel.configureBlocking(false);
+				SelectionKey clientKey = sChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+				SocketChannel sServerChannel = SocketChannel.open();
+				sServerChannel.configureBlocking(false);
+				sServerChannel.connect(new InetSocketAddress(FORWARD_IP, FORWARD_PORT));
+				while (!sServerChannel.finishConnect()) {
+					Thread.sleep(10L); log(".");
+				}
+				log("Connected OK!");
+				SelectionKey serverKey = sServerChannel.register(selector, sServerChannel.validOps());
+				clientKey.attach(serverKey);
+				serverKey.attach(clientKey);
+			}
+		}
+		if (selKey.isReadable()) {
+			SocketChannel sChannel = (SocketChannel) selKey.channel();
+			SelectionKey palKey = (SelectionKey) selKey.attachment();
+			if (palKey != null) {
+				SocketChannel palChannel = (SocketChannel) palKey.channel();
+				if (palKey.isValid() && selKey.isValid()) {
+					buf.clear();
+					int count = 0;
+					try {
+						while ((count = sChannel.read(buf)) > 0) {
+							buf.flip();
+							log(sChannel.socket().getLocalPort()+": ", buf.duplicate());
+							while (buf.hasRemaining()) {
+								palChannel.write(buf);
+							}
+							buf.clear();
+						}
+					} catch (IOException e) {
+						sChannel.close();
+						palChannel.close();
+						log("Forced disconnected!");
+					}
+					if (count == -1) {
+						sChannel.close();
+						palChannel.close();
+						log("Disconnected OK!");
+					}
+				} else {
+					sChannel.close();
+					palChannel.close();
+					log("Not Connected!");
+				}
+			} else {
+				sChannel.close();
+				log("Timeout disconnected OK!");
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+	

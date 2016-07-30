@@ -1,0 +1,52 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2015-11-01T17:31:10+08:00
+
+====== gitweb ======
+Created Sunday 01 November 2015
+
+==== gitweb smart http ====
+
+=== /etc/apache2/conf-enabled/gitweb.conf ===
+  SuexecUserGroup gitolite3 gitolite3
+  SetEnv GIT_HTTP_EXPORT_ALL
+  ScriptAlias /git/ /usr/share/bin/gitolite-suexec-wrapper.sh/
+
+  SetEnv REMOTE_USER REDIRECT_REMOTE_USER
+  SetEnv GIT_HTTP_BACKEND /usr/lib/git-core/git-http-backend
+
+  <LocationMatch /git>
+	AuthType Basic
+	AuthName "Git Access"
+	AuthBasicProvider ldap
+	AuthLDAPURL "ldap://192.168.1.239:389/ou=dev,dc=wcce,dc=cn?uid?sub?(objectClass=inetOrgPerson)"
+	AuthLDAPBindDN "uid=openldap,dc=wcce,dc=cn"
+	AuthLDAPBindPassword openldap
+	Require valid-user
+	AddHandler cgi-script cgi
+  </LocationMatch>
+
+=== /usr/share/bin/gitolite-suexec-wrapper.sh ===
+#!/bin/bash
+export GIT_PROJECT_ROOT="/data/git/repositories"
+export GITOLITE_HTTP_HOME="/data/git"
+exec /usr/share/gitolite3/gitolite-shell
+
+=== /etc/apache2/suexec/www-data ===
+/usr/share
+public_html/
+
+=== .gitolite.rc ===
+GIT_CONFIG_KEYS                 =>  'gitweb\.(owner|description|category) receive.denyCurrentBranch',
+ENABLE => [ #ssh-authkeys
+
+=== gitolite.conf ===
+repo spms
+  config gitweb.owner = "wcce"
+  config gitweb.description = "出入境特殊物品卫生检疫监管平台"
+  config receive.denyCurrentBranch = ignore
+  RW+   =   @spms
+  R     =   daemon deploy
+option http.receivepack = true
+
+

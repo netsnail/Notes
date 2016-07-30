@@ -1,0 +1,16 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-25T10:43:50+08:00
+
+====== android ======
+Created Monday 25 June 2012
+
+===== android emlator 抓图 =====
+#!/bin/bash
+IMAGE_RES=480x800
+RAW_IMAGE=frame.raw
+OUT_IMAGE=frame-%d.png
+adb shell 'cat /dev/graphics/fb0 > /sdcard/frame.raw'
+adb pull /sdcard/$RAW_IMAGE .
+exec ffmpeg -vcodec rawvideo -f rawvideo -pix_fmt rgb565 -s $IMAGE_RES \
+-i $RAW_IMAGE -f image2 -vcodec png $OUT_IMAGE

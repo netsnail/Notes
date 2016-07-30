@@ -1,0 +1,467 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>nginx优化</title>
+</head><body><br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">Nginx是一个轻量级的，高性能的Web服务器以及反向代理和邮箱(IMAP/POP3)代理服务器。它运行在UNIX,GNU /linux,BSD 各种版本，Mac OS X,Solaris和Windows。根据调查统计，6%的网站使用Nginx&nbsp;Web服务器。Nginx是少数能处理C10K问题的服务器之一。跟传统的服务器不同，Nginx不依赖线程来处理请求。相反，它使用了更多的可扩展的事&nbsp;件驱动（异步）架构。Nginx为一些高流量的网站提供动力，比如WordPress,人人网，腾讯，网易等。这篇文章主要是介绍如何提高运行在&nbsp;Linux或UNIX系统的Nginx&nbsp;Web服务器的安全性。<br/>
+</div></span></span><br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><b>默认配置文件和Nginx端口</b><br/>
+</div></span></span><ul><li>/usr/local/nginx/conf/ – Nginx配置文件目录，/usr/local/nginx/conf/nginx.conf是主配置文件</li>
+<li>/usr/local/nginx/html/ – 默认网站文件位置</li>
+<li>/usr/local/nginx/logs/ – 默认日志文件位置</li>
+<li>Nginx&nbsp;HTTP默认端口&nbsp;: TCP 80</li>
+<li>Nginx&nbsp;HTTPS默认端口: TCP 443</li>
+</ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你可以使用以下命令来测试Nginx配置文件准确性。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>/usr/local/nginx/sbin/nginx&nbsp;-t</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">将会输出。<br/>
+the configuration file /usr/local/nginx/conf/nginx.conf&nbsp;syntax is ok<br/>
+configuration file /usr/local/nginx/conf/nginx.conf&nbsp;test is successful<br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">执行以下命令来重新加载配置文件。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>/usr/local/nginx/sbin/nginx&nbsp;-s&nbsp;reload</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">执行以下命令来停止服务器。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>/usr/local/nginx/sbin/nginx&nbsp;-s&nbsp;stop</li>
+</div></span></span></ul>
+一、配置SELinux<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">安全增强型Linux（SELinux）的是一个Linux内核的功能，它提供支持访问控制的安全政策保护机制。它可以大部分的攻击。下面我们来看如何启动基于centos/RHEL系统的SELinux。<br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><b>安装SELinux</b></div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>rpm -qa&nbsp;| grep&nbsp;selinux</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">libselinux-1.23.10-2<br/>
+selinux-policy-targeted-1.23.16-6<br/>
+如果没有返回任何结果，代表没有安装&nbsp;SELinux，如果返回了类似上面的结果，则说明系统安装了&nbsp;SELinux。<br/>
+<b>布什值锁定</b><br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">运行命令getsebool&nbsp;-a来锁定系统。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>getsebool&nbsp;-a | less</li>
+<li>getsebool&nbsp;-a | grep&nbsp;off</li>
+<li>getsebool&nbsp;-a | grep&nbsp;o</li>
+</div></span></span></ul>
+二、通过分区挂载允许最少特权<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">服务器上的网页/html/php文件单独分区。例如，新建一个分区/dev/sda5(第一逻辑分区)，并且挂载在/nginx。确保&nbsp;/nginx是以noexec, nodev&nbsp;and nosetuid的权限挂载。以下是我的/etc/fstab的挂载/nginx的信息：<br/>
+LABEL=/nginx&nbsp;/nginx&nbsp;ext3&nbsp;defaults,nosuid,noexec,nodev&nbsp;1 2<br/>
+注意：你需要使用fdisk和mkfs.ext3命令创建一个新分区。<br/>
+</div></span></span>三、配置/etc/sysctl.conf强化Linux安全<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你可以通过编辑/etc/sysctl.conf来控制和配置Linux内核、网络设置。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li># Avoid a smurf&nbsp;attack</li>
+<li>net.ipv4.icmp_echo_ignore_broadcasts = 1</li>
+<li># Turn on protection for bad icmp&nbsp;error messages</li>
+<li>net.ipv4.icmp_ignore_bogus_error_responses = 1</li>
+<li># Turn on syncookies&nbsp;for SYN&nbsp;flood attack protection</li>
+<li>net.ipv4.tcp_syncookies&nbsp;= 1</li>
+<li># Turn on and log spoofed, source routed, and redirect packets</li>
+<li>net.ipv4.conf.all.log_martians&nbsp;= 1</li>
+<li>net.ipv4.conf.default.log_martians&nbsp;= 1</li>
+<li># No source routed packets here</li>
+<li>net.ipv4.conf.all.accept_source_route = 0</li>
+<li>net.ipv4.conf.default.accept_source_route = 0</li>
+<li># Turn on reverse path filtering</li>
+<li>net.ipv4.conf.all.rp_filter = 1</li>
+<li>net.ipv4.conf.default.rp_filter = 1</li>
+<li># Make sure no one can alter the routing tables</li>
+<li>net.ipv4.conf.all.accept_redirects = 0</li>
+<li>net.ipv4.conf.default.accept_redirects = 0</li>
+<li>net.ipv4.conf.all.secure_redirects = 0</li>
+<li>net.ipv4.conf.default.secure_redirects = 0</li>
+<li># Don’t&nbsp;act as a router</li>
+<li>net.ipv4.ip_forward = 0</li>
+<li>net.ipv4.conf.all.send_redirects = 0</li>
+<li>net.ipv4.conf.default.send_redirects = 0</li>
+<li># Turn on execshild</li>
+<li>kernel.exec-shield = 1</li>
+<li>kernel.randomize_va_space = 1</li>
+<li># Tuen&nbsp;IPv6</li>
+<li>net.ipv6.conf.default.router_solicitations = 0</li>
+<li>net.ipv6.conf.default.accept_ra_rtr_pref = 0</li>
+<li>net.ipv6.conf.default.accept_ra_pinfo&nbsp;= 0</li>
+<li>net.ipv6.conf.default.accept_ra_defrtr&nbsp;= 0</li>
+<li>net.ipv6.conf.default.autoconf&nbsp;= 0</li>
+<li>net.ipv6.conf.default.dad_transmits = 0</li>
+<li>net.ipv6.conf.default.max_addresses = 1</li>
+<li># Optimization for port usefor&nbsp;LBs</li>
+<li># Increase system file descriptor limit</li>
+<li>fs.file-max&nbsp;= 65535</li>
+<li># Allow for more PIDs&nbsp;(to reduce rollover&nbsp;problems); may break some programs 32768</li>
+<li>kernel.pid_max&nbsp;= 65536</li>
+<li># Increase system IP&nbsp;port limits</li>
+<li>net.ipv4.ip_local_port_range = 2000 65000</li>
+<li># Increase TCP max&nbsp;buffer size setable&nbsp;using setsockopt()</li>
+<li>net.ipv4.tcp_rmem&nbsp;= 4096 87380 8388608</li>
+<li>net.ipv4.tcp_wmem&nbsp;= 4096 87380 8388608</li>
+<li># Increase Linux auto tuning TCP buffer limits</li>
+<li># min, default, and max&nbsp;number of bytes to use</li>
+<li># set max&nbsp;to at least 4MB, or higher if you use very high BDP&nbsp;paths</li>
+<li># Tcp&nbsp;Windows etc</li>
+<li>net.core.rmem_max&nbsp;= 8388608</li>
+<li>net.core.wmem_max&nbsp;= 8388608</li>
+<li>net.core.netdev_max_backlog = 5000</li>
+<li>net.ipv4.tcp_window_scaling = 1</li>
+</div></span></span></ul>
+四、删除所有不需要的Nginx模块<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你需要直接通过编译Nginx源代码使模块数量最少化。通过限制只允许web服务器访问模块把风险降到最低。你可以只配置安装nginx你所需要的模块。例如，禁用SSL和autoindex模块你可以执行以下命令：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>./configure –without-http_autoindex_module –without-http_ssi_module</li>
+<li>make</li>
+<li>make install</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">通过以下命令来查看当编译nginx服务器时哪个模块能开户或关闭：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>./configure –help | less</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">禁用你用不到的nginx模块。<br/>
+（可选项）更改nginx版本名称。 <br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">编辑文件/http/ngx_http_header_filter_module.c：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>vi&nbsp;+48 src/http/ngx_http_header_filter_module.c</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">找到行：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>static char ngx_http_server_string[] = “Server: nginx” CRLF;</li>
+<li>static char ngx_http_server_full_string[] = “Server: ” NGINX_VER&nbsp;CRLF;</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">按照以下行修改：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>static char ngx_http_server_string[] = “Server: Ninja Web Server” CRLF;</li>
+<li>static char ngx_http_server_full_string[] = “Server: Ninja Web Server” CRLF;</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">保存并关闭文件。现在你可以编辑服务器了。增加以下代码到nginx.conf文件来关闭nginx版本号的显示。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>server_tokens off</li>
+</div></span></span></ul>
+五、使用mod_security(只适合后端Apache服务器)<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">mod_security为Apache提供一个应用程序级的防火墙。为后端Apache&nbsp;Web服务器安装mod_security，这会阻止很多注入式攻击。<br/>
+</div></span></span>六、安装SELinux策略以强化Nginx&nbsp;Web服务器<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">默认的SELinux不会保护Nginx&nbsp;Web服务器，但是你可以安装和编译保护软件。<br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">1、安装编译SELinux所需环境支持</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>yum -y&nbsp;install selinux-policy-targeted selinux-policy-devel</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">2、下载SELinux策略以强化Nginx&nbsp;Web服务器。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>cd&nbsp;/opt</li>
+<li>wget&nbsp;‘http://downloads.sourceforge.net/project/selinuxnginx/se-ngix_1_0_10.tar.gz?use_mirror=nchc’</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">3、解压文件</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>tar -zxvf&nbsp;se-ngix_1_0_10.tar.gz</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">4、编译文件</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>cd&nbsp;se-ngix_1_0_10/nginx</li>
+<li>make</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">将会输出如下：<br/>
+Compiling targeted nginx&nbsp;module<br/>
+/usr/bin/checkmodule: loading policy configuration from tmp/nginx.tmp<br/>
+/usr/bin/checkmodule: policy configuration loaded<br/>
+/usr/bin/checkmodule: writing binary representation (version 6) to tmp/nginx.mod<br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">Creating targeted nginx.pp policy package</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>rm&nbsp;tmp/nginx.mod.fc&nbsp;tmp/nginx.mod</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">5、安装生成的nginx.pp SELinux模块：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>/usr/sbin/semodule&nbsp;-i&nbsp;nginx.pp</li>
+</div></span></span></ul>
+七、基于Iptables防火墙的限制<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">下面的防火墙脚本阻止任何除了允许：<br/>
+</div></span></span><ul><li>来自HTTP(TCP端口80)的请求 </li>
+<li>来自ICMP&nbsp;ping的请求</li>
+<li>ntp(端口123)的请求输出</li>
+<li>smtp(TCP端口25)的请求输出</li>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>#!/bin/bash</li>
+<li>IPT=”/sbin/iptables”</li>
+<li>#### IPS&nbsp;######</li>
+<li># Get server public ip</li>
+<li>SERVER_IP=$(ifconfig&nbsp;eth0&nbsp;| grep&nbsp;‘inet&nbsp;addr:’ | awk&nbsp;-F’inet&nbsp;addr:’ ‘{ print $2}’ | awk&nbsp;‘{ print $1}’)</li>
+<li>LB1_IP=”204.54.1.1″</li>
+<li>LB2_IP=”204.54.1.2″</li>
+<li># Do some smart logic so that we can use damm&nbsp;script on LB2&nbsp;too</li>
+<li>OTHER_LB=”"</li>
+<li>SERVER_IP=”"</li>
+<li>[[ "$SERVER_IP" == "$LB1_IP" ]] &amp;&amp; OTHER_LB=”$LB2_IP” || OTHER_LB=”$LB1_IP”</li>
+<li>[[ "$OTHER_LB" == "$LB2_IP" ]] &amp;&amp; OPP_LB=”$LB1_IP” || OPP_LB=”$LB2_IP”</li>
+<li>### IPs&nbsp;###</li>
+<li>PUB_SSH_ONLY=”122.xx.yy.zz/29″</li>
+<li>#### FILES #####</li>
+<li>BLOCKED_IP_TDB=/root/.fw/blocked.ip.txt</li>
+<li>SPOOFIP=”127.0.0.0/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 169.254.0.0/16 0.0.0.0/8 240.0.0.0/4 255.255.255.255/32 168.254.0.0/16 224.0.0.0/4 240.0.0.0/5 248.0.0.0/5 192.0.2.0/24″</li>
+<li>BADIPS=$( [[ -f&nbsp;${BLOCKED_IP_TDB} ]] &amp;&amp; egrep&nbsp;-v&nbsp;“^#|^$” ${BLOCKED_IP_TDB})</li>
+<li>### Interfaces ###</li>
+<li>PUB_IF=”eth0″   # public interface</li>
+<li>LO_IF=”lo”      # loopback</li>
+<li>VPN_IF=”eth1″   # vpn&nbsp;/ private net</li>
+<li>### start firewall ###</li>
+<li>echo “Setting LB1&nbsp;$(hostname) Firewall…”</li>
+<li># DROP and close everything</li>
+<li>$IPT&nbsp;-P&nbsp;INPUT DROP</li>
+<li>$IPT&nbsp;-P&nbsp;OUTPUT DROP</li>
+<li>$IPT&nbsp;-P&nbsp;FORWARD DROP</li>
+<li># Unlimited lo access</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${LO_IF} -j&nbsp;ACCEPT</li>
+<li>$IPT&nbsp;-A OUTPUT -o&nbsp;${LO_IF} -j&nbsp;ACCEPT</li>
+<li># Unlimited vpn&nbsp;/ pnet&nbsp;access</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${VPN_IF} -j&nbsp;ACCEPT</li>
+<li>$IPT&nbsp;-A OUTPUT -o&nbsp;${VPN_IF} -j&nbsp;ACCEPT</li>
+<li># Drop sync</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;! –syn&nbsp;-m&nbsp;state –state NEW -j&nbsp;DROP</li>
+<li># Drop Fragments</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${PUB_IF} -f&nbsp;-j&nbsp;DROP</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags ALL FIN,URG,PSH&nbsp;-j&nbsp;DROP</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags ALL ALL -j&nbsp;DROP</li>
+<li># Drop NULL packets</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags ALL NONE -m&nbsp;limit –limit 5/m&nbsp;–limit-burst 7 -j&nbsp;LOG –log-prefix ” NULL Packets “</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags ALL NONE -j&nbsp;DROP</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags SYN,RST&nbsp;SYN,RST&nbsp;-j&nbsp;DROP</li>
+<li># Drop XMAS</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags SYN,FIN SYN,FIN -m&nbsp;limit –limit 5/m&nbsp;–limit-burst 7 -j&nbsp;LOG –log-prefix ” XMAS Packets “</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags SYN,FIN SYN,FIN -j&nbsp;DROP</li>
+<li># Drop FIN packet scans</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags FIN,ACK&nbsp;FIN -m&nbsp;limit –limit 5/m&nbsp;–limit-burst 7 -j&nbsp;LOG –log-prefix ” Fin Packets Scan “</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags FIN,ACK&nbsp;FIN -j&nbsp;DROP</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–tcp-flags ALL SYN,RST,ACK,FIN,URG&nbsp;-j&nbsp;DROP</li>
+<li># Log and get rid of broadcast / multicast and invalid</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -m&nbsp;pkttype&nbsp;–pkt-type broadcast -j&nbsp;LOG –log-prefix ” Broadcast “</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -m&nbsp;pkttype&nbsp;–pkt-type broadcast -j&nbsp;DROP</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -m&nbsp;pkttype&nbsp;–pkt-type multicast -j&nbsp;LOG –log-prefix ” Multicast “</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -m&nbsp;pkttype&nbsp;–pkt-type multicast -j&nbsp;DROP</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -m&nbsp;state –state INVALID -j&nbsp;LOG –log-prefix ” Invalid “</li>
+<li>$IPT  -A INPUT -i&nbsp;${PUB_IF} -m&nbsp;state –state INVALID -j&nbsp;DROP</li>
+<li># Log and block spoofed ips</li>
+<li>$IPT&nbsp;-N&nbsp;spooflist</li>
+<li>for ipblock&nbsp;in $SPOOFIP</li>
+<li>do</li>
+<li>$IPT&nbsp;-A spooflist&nbsp;-i&nbsp;${PUB_IF} -s&nbsp;$ipblock&nbsp;-j&nbsp;LOG –log-prefix ” SPOOF List Block “</li>
+<li>$IPT&nbsp;-A spooflist&nbsp;-i&nbsp;${PUB_IF} -s&nbsp;$ipblock&nbsp;-j&nbsp;DROP</li>
+<li>done</li>
+<li>$IPT&nbsp;-I INPUT -j&nbsp;spooflist</li>
+<li>$IPT&nbsp;-I OUTPUT -j&nbsp;spooflist</li>
+<li>$IPT&nbsp;-I FORWARD -j&nbsp;spooflist</li>
+<li># Allow ssh&nbsp;only from selected public ips</li>
+<li>for ip&nbsp;in ${PUB_SSH_ONLY}</li>
+<li>do</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${PUB_IF} -s&nbsp;${ip} -p&nbsp;tcp&nbsp;-d&nbsp;${SERVER_IP} –destination-port 22 -j&nbsp;ACCEPT</li>
+<li>$IPT&nbsp;-A OUTPUT -o&nbsp;${PUB_IF} -d&nbsp;${ip} -p&nbsp;tcp&nbsp;-s&nbsp;${SERVER_IP} –sport 22 -j&nbsp;ACCEPT</li>
+<li>done</li>
+<li># allow incoming ICMP&nbsp;ping pong stuff</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${PUB_IF} -p&nbsp;icmp&nbsp;–icmp-type 8 -s&nbsp;0/0 -m&nbsp;state –state NEW,ESTABLISHED,RELATED -m&nbsp;limit –limit 30/sec  -j&nbsp;ACCEPT</li>
+<li>$IPT&nbsp;-A OUTPUT -o&nbsp;${PUB_IF} -p&nbsp;icmp&nbsp;–icmp-type 0 -d&nbsp;0/0 -m&nbsp;state –state ESTABLISHED,RELATED -j&nbsp;ACCEPT</li>
+<li># allow incoming HTTP port 80</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;-s&nbsp;0/0 –sport 1024:65535 –dport&nbsp;80 -m&nbsp;state –state NEW,ESTABLISHED -j&nbsp;ACCEPT</li>
+<li>$IPT&nbsp;-A OUTPUT -o&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–sport 80 -d&nbsp;0/0 –dport&nbsp;1024:65535 -m&nbsp;state –state ESTABLISHED -j&nbsp;ACCEPT</li>
+<li># allow outgoing ntp</li>
+<li>$IPT&nbsp;-A OUTPUT -o&nbsp;${PUB_IF} -p&nbsp;udp&nbsp;–dport&nbsp;123 -m&nbsp;state –state NEW,ESTABLISHED -j&nbsp;ACCEPT</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${PUB_IF} -p&nbsp;udp&nbsp;–sport 123 -m&nbsp;state –state ESTABLISHED -j&nbsp;ACCEPT</li>
+<li># allow outgoing smtp</li>
+<li>$IPT&nbsp;-A OUTPUT -o&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–dport&nbsp;25 -m&nbsp;state –state NEW,ESTABLISHED -j&nbsp;ACCEPT</li>
+<li>$IPT&nbsp;-A INPUT -i&nbsp;${PUB_IF} -p&nbsp;tcp&nbsp;–sport 25 -m&nbsp;state –state ESTABLISHED -j&nbsp;ACCEPT</li>
+<li>### add your other rules here ####</li>
+<li>#######################</li>
+<li># drop and log everything else</li>
+<li>$IPT&nbsp;-A INPUT -m&nbsp;limit –limit 5/m&nbsp;–limit-burst 7 -j&nbsp;LOG –log-prefix ” DEFAULT DROP “</li>
+<li>$IPT&nbsp;-A INPUT -j&nbsp;DROP</li>
+<li>exit 0</li>
+</div></span></span></ul>
+八、控制缓冲区溢出攻击<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">编辑nginx.conf，为所有客户端设置缓冲区的大小限制。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>vi&nbsp;/usr/local/nginx/conf/nginx.conf</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">编辑和设置所有客户端缓冲区的大小限制如下：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>## Start: Size Limits &amp; Buffer Overflows ##</li>
+<li>client_body_buffer_size  1K;</li>
+<li>client_header_buffer_size 1k;</li>
+<li>client_max_body_size 1k;</li>
+<li>large_client_header_buffers 2 1k;</li>
+<li>## END: Size Limits &amp; Buffer Overflows ##</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">解释：<br/>
+1、client_body_buffer_size 1k-（默认8k或16k）这个指令可以指定连接请求实体的缓冲区大小。如果连接请求超过缓存区指定的值，那么这些请求实体的整体或部分将尝试写入一个临时文件。<br/>
+2、client_header_buffer_size 1k-指令指定客户端请求头部的缓冲区大小。绝大多数情况下一个请求头不会大于1k，不过如果有来自于wap客户端的较大的cookie它可能会大于&nbsp;1k，Nginx将分配给它一个更大的缓冲区，这个值可以在large_client_header_buffers里面设置。 <br/>
+3、client_max_body_size 1k-指令指定允许客户端连接的最大请求实体大小，它出现在请求头部的Content-Length字段。<br/>
+如果请求大于指定的值，客户端将收到一个”Request Entity Too Large” (413)错误。记住，浏览器并不知道怎样显示这个错误。<br/>
+4、large_client_header_buffers-指定客户端一些比较大的请求头使用的缓冲区数量和大小。请求字段不能大于一个缓冲区大小，如果客户端发送一个比较大的头，nginx将返回”Request URI too large” (414)<br/>
+同样，请求的头部最长字段不能大于一个缓冲区，否则服务器将返回”Bad request” (400)。缓冲区只在需求时分开。默认一个缓冲区大小为操作系统中分页文件大小，通常是4k或8k，如果一个连接请求最终将状态转换为keep- alive，它所占用的缓冲区将被释放。<br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你还需要控制超时来提高服务器性能并与客户端断开连接。按照如下编辑：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>## Start: Timeouts&nbsp;##</li>
+<li>client_body_timeout   10;</li>
+<li>client_header_timeout&nbsp;10;</li>
+<li>keepalive_timeout     5 5;</li>
+<li>send_timeout          10;</li>
+<li>## End: Timeouts&nbsp;##</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">1、client_body_timeout&nbsp;10;-指令指定读取请求实体的超时时间。这里的超时是指一个请求实体没有进入读取步骤，如果连接超过这个时间而客户端没有任何响应，Nginx将返回一个”Request time out” (408)错误。<br/>
+2、client_header_timeout&nbsp;10;-指令指定读取客户端请求头标题的超时时间。这里的超时是指一个请求头没有进入读取步骤，如果连接超过这个时间而客户端没有任何响应，Nginx将返回一个”Request time out” (408)错误。<br/>
+3、keepalive_timeout&nbsp;5 5; – 参数的第一个值指定了客户端与服务器长连接的超时时间，超过这个时间，服务器将关闭连接。参数的第二个值（可选）指定了应答头中Keep-Alive: timeout=time的time值，这个值可以使一些浏览器知道什么时候关闭连接，以便服务器不用重复关闭，如果不指定这个参数，nginx不会在应&nbsp;答头中发送Keep-Alive信息。（但这并不是指怎样将一个连接“Keep-Alive”）参数的这两个值可以不相同。<br/>
+4、send_timeout&nbsp;10; 指令指定了发送给客户端应答后的超时时间，Timeout是指没有进入完整established状态，只完成了两次握手，如果超过这个时间客户端没有任何响应，nginx将关闭连接。<br/>
+</div></span></span>九、控制并发连接<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你可以使用NginxHttpLimitZone模块来限制指定的会话或者一个IP地址的特殊情况下的并发连接。编辑nginx.conf:</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>### Directive describes the zone, in which the session states are stored i.e. store in slimits. ###</li>
+<li>### 1m can handle 32000 sessions with 32 bytes/session, set to 5m x 32000 session ###</li>
+<li>limit_zone slimits&nbsp;$binary_remote_addr&nbsp;5m;</li>
+<li>### Control maximum number of simultaneous connections for one session i.e. ###</li>
+<li>### restricts the amount of connections from a single ip&nbsp;address ###</li>
+<li>limit_conn&nbsp;slimits&nbsp;5;</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">上面表示限制每个远程IP地址的客户端同时打开连接不能超过5个。<br/>
+</div></span></span>十、只允许我们的域名的访问<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">如果机器人只是随机扫描服务器的所有域名，那拒绝这个请求。你必须允许配置的虚拟域或反向代理请求。你不必使用IP地址来拒绝。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>## Only requests to our Host are allowed i.e. nixcraft.in, images.nixcraft.in and www.nixcraft.in</li>
+<li>if ($host !~ ^(nixcraft.in|www.nixcraft.in|images.nixcraft.in)$ ) {</li>
+<li>return 444;</li>
+<li>}</li>
+<li>##</li>
+</div></span></span></ul>
+十一、限制可用的请求方法<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">GET和POST是互联网上最常用的方法。 Web服务器的方法被定义在RFC&nbsp;2616。如果Web服务器不要求启用所有可用的方法，它们应该被禁用。下面的指令将过滤只允许GET，HEAD和POST方法：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>## Only allow these request methods ##</li>
+<li>if ($request_method !~ ^(GET|HEAD|POST)$ ) {</li>
+<li>return 444;</li>
+<li>}</li>
+<li>## Do not accept DELETE, SEARCH and other methods ##</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">更多关于HTTP方法的介绍<br/>
+</div></span></span><ul><li>GET方法是用来请求。</li>
+<li>HEAD方法是一样的，除非该服务器的GET请求无法返回消息体。</li>
+<li>POST方法可能涉及到很多东西，如储存或更新数据，或订购产品，或通过提交表单发送电子邮件。这通常是使用服务器端处理，如PHP，Perl和Python等脚本。如果你要上传的文件和在服务器处理数据，你必须使用这个方法。</li>
+</ul>
+十二、如何拒绝一些User-Agents？<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你可以很容易地阻止User-Agents,如扫描器，机器人以及滥用你服务器的垃圾邮件发送者。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>## Block download agents ##</li>
+<li>if ($http_user_agent ~* LWP::Simple|BBBike|wget) {</li>
+<li>return 403;</li>
+<li>}</li>
+<li>##</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">阻止Soso和有道的机器人：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>## Block some robots ##</li>
+<li>if ($http_user_agent ~* Sosospider|YodaoBot) {</li>
+<li>return 403;</li>
+<li>}</li>
+</div></span></span></ul>
+十三、如何防止图片盗链<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">图片或HTML盗链的意思是有人直接用你网站的图片地址来显示在他的网站上。最终的结果，你需要支付额外的宽带费用。这通常是在论坛和博客。我强烈建议您封锁，并阻止盗链行为。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li># Stop deep linking or hot linking </li>
+<li></li>
+<li>location /images/ {</li>
+<li>valid_referers&nbsp;none blocked www.example.com&nbsp;example.com;</li>
+<li>if ($invalid_referer) {</li>
+<li>return   403;</li>
+<li>}</li>
+<li>}</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">例如：重定向并显示指定图片</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>valid_referers&nbsp;blocked www.example.com&nbsp;example.com;</li>
+<li>if ($invalid_referer) {</li>
+<li>rewrite ^/images/uploads.*\.(gif|jpg|jpeg|png)$ http://www.examples.com/banned.jpg&nbsp;last</li>
+<li>}</li>
+</div></span></span></ul>
+十四、目录限制<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你可以对指定的目录设置访问权限。所有的网站目录应该一一的配置，只允许必须的目录访问权限。<br/>
+<b>通过IP地址限制访问</b><br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你可以通过IP地址来限制访问目录/admin/:</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>location /docs/ {</li>
+<li>## block one workstation</li>
+<li>deny    192.168.1.1;</li>
+<li>## allow anyone in 192.168.1.0/24</li>
+<li>allow   192.168.1.0/24;</li>
+<li>## drop rest of the world</li>
+<li>deny    all;</li>
+<li>}</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><b>通过密码保护目录</b><br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">首先创建密码文件并增加“user”用户：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>mkdir&nbsp;/usr/local/nginx/conf/.htpasswd/</li>
+<li>htpasswd&nbsp;-c&nbsp;/usr/local/nginx/conf/.htpasswd/passwd&nbsp;user</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">编辑nginx.conf,加入需要保护的目录：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>### Password Protect /personal-images/ and /delta/ directories ###</li>
+<li>location ~ /(personal-images/.*|delta/.*) {</li>
+<li>auth_basic  “Restricted”;</li>
+<li>auth_basic_user_file   /usr/local/nginx/conf/.htpasswd/passwd;</li>
+<li>}</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">一旦密码文件已经生成，你也可以用以下的命令来增加允许访问的用户：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>htpasswd&nbsp;-s&nbsp;/usr/local/nginx/conf/.htpasswd/passwd&nbsp;userName</li>
+</div></span></span></ul>
+十五、Nginx&nbsp;SSL配置<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">HTTP是一个纯文本协议，它是开放的被动监测。你应该使用SSL来加密你的用户内容。<br/>
+<b>创建SSL证书</b><br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">执行以下命令：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>cd&nbsp;/usr/local/nginx/conf</li>
+<li>openssl&nbsp;genrsa&nbsp;-des3&nbsp;-out server.key 1024</li>
+<li>openssl&nbsp;req&nbsp;-new -key server.key -out server.csr</li>
+<li>cp&nbsp;server.key server.key.org</li>
+<li>openssl&nbsp;rsa&nbsp;-in server.key.org&nbsp;-out server.key</li>
+<li>openssl&nbsp;x509&nbsp;-req&nbsp;-days 365 -in server.csr&nbsp;-signkey&nbsp;server.key -out server.crt</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">编辑nginx.conf并按如下来更新：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>server {</li>
+<li>server_name example.com;</li>
+<li>listen 443;</li>
+<li>ssl&nbsp;on;</li>
+<li>ssl_certificate /usr/local/nginx/conf/server.crt;</li>
+<li>ssl_certificate_key /usr/local/nginx/conf/server.key;</li>
+<li>access_log /usr/local/nginx/logs/ssl.access.log;</li>
+<li>error_log /usr/local/nginx/logs/ssl.error.log;</li>
+<li>}</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">重启nginx:</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>/usr/local/nginx/sbin/nginx&nbsp;-s&nbsp;reload</li>
+</div></span></span></ul>
+十六、Nginx与PHP安全建议<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">PHP是流行的服务器端脚本语言之一。如下编辑/etc/php.ini文件：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li># Disallow dangerous functions</li>
+<li>disable_functions = phpinfo, system, mail, exec</li>
+<li>## Try to limit resources  ##</li>
+<li># Maximum execution time of each script, in seconds</li>
+<li>max_execution_time = 30</li>
+<li># Maximum amount of time each script may spend parsing request data</li>
+<li>max_input_time = 60</li>
+<li># Maximum amount of memory a script may consume (8MB)</li>
+<li>memory_limit = 8M</li>
+<li># Maximum size of POST data that PHP&nbsp;will accept.</li>
+<li>post_max_size = 8M</li>
+<li># Whether to allow HTTP file uploads.</li>
+<li>file_uploads = Off</li>
+<li># Maximum allowed size for uploaded files.</li>
+<li>upload_max_filesize&nbsp;= 2M</li>
+<li># Do not expose PHP&nbsp;error messages to external users</li>
+<li>display_errors = Off</li>
+<li># Turn on safe mode</li>
+<li>safe_mode = On</li>
+<li># Only allow access to executables in isolated directory</li>
+<li>safe_mode_exec_dir&nbsp;= php-required-executables-path</li>
+<li># Limit external access to PHP&nbsp;environment</li>
+<li>safe_mode_allowed_env_vars&nbsp;= PHP_</li>
+<li># Restrict PHP&nbsp;information leakage</li>
+<li>expose_php&nbsp;= Off</li>
+<li># Log all errors</li>
+<li>log_errors = On</li>
+<li># Do not register globals for input data</li>
+<li>register_globals = Off</li>
+<li># Minimize allowable PHP&nbsp;post size</li>
+<li>post_max_size = 1K</li>
+<li># Ensure PHP&nbsp;redirects appropriately</li>
+<li>cgi.force_redirect = 0</li>
+<li># Disallow uploading unless necessary</li>
+<li>file_uploads = Off</li>
+<li># Enable SQL safe mode</li>
+<li>sql.safe_mode = On</li>
+<li># Avoid Opening remote files</li>
+<li>allow_url_fopen&nbsp;= Off</li>
+</div></span></span></ul>
+十七、如果可能让Nginx运行在一个chroot监狱<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">把nginx放在一个chroot监狱以减小潜在的非法进入其它目录。你可以使用传统的与nginx一起安装的chroot。如果可能，那使用FreeBSD&nbsp;jails，Xen，OpenVZ虚拟化的容器概念。<br/>
+</div></span></span>十八、在防火墙级限制每个IP的连接数<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">网络服务器必须监视连接和每秒连接限制。PF和Iptales都能够在进入你的nginx服务器之前阻止最终用户的访问。<br/>
+Linux Iptables:限制每次Nginx连接数<br/>
+</div></span></span><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">下面的例子会阻止来自一个IP的60秒钟内超过15个连接端口80的连接数。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>/sbin/iptables&nbsp;-A INPUT -p&nbsp;tcp&nbsp;–dport&nbsp;80 -i&nbsp;eth0&nbsp;-m&nbsp;state –state NEW -m&nbsp;recent –set</li>
+<li>/sbin/iptables&nbsp;-A INPUT -p&nbsp;tcp&nbsp;–dport&nbsp;80 -i&nbsp;eth0&nbsp;-m&nbsp;state –state NEW -m&nbsp;recent –update –seconds 60  –hitcount&nbsp;15 -j&nbsp;DROP</li>
+<li>service iptables&nbsp;save</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">请根据你的具体情况来设置限制的连接数。<br/>
+</div></span></span>十九：配置操作系统保护Web服务器<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">像以上介绍的启动SELinux.正确设置/nginx文档根目录的权限。Nginx以用户nginx运行。但是根目录（/nginx或者/usr&nbsp;/local/nginx/html）不应该设置属于用户nginx或对用户nginx可写。找出错误权限的文件可以使用如下命令：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>find /nginx&nbsp;-user nginx</li>
+<li>find /usr/local/nginx/html -user nginx</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">确保你更所有权为root或其它用户，一个典型的权限设置&nbsp;/usr/local/nginx/html/</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>ls -l&nbsp;/usr/local/nginx/html/</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">示例输出：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>-rw-r–r– 1 root root 925 Jan  3 00:50 error4xx.html</li>
+<li>-rw-r–r– 1 root root  52 Jan  3 10:00 error5xx.html</li>
+<li>-rw-r–r– 1 root root 134 Jan  3 00:52 index.html</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">你必须删除由vi或其它文本编辑器创建的备份文件：</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>find /nginx&nbsp;-name ‘.?*’ -not -name .ht* -or -name ‘*~’ -or -name ‘*.bak*’ -or -name ‘*.old*’</li>
+<li>find /usr/local/nginx/html/ -name ‘.?*’ -not -name .ht* -or -name ‘*~’ -or -name ‘*.bak*’ -or -name ‘*.old*’</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">通过find命令的-delete选项来删除这些文件。<br/>
+</div></span></span>二十、限制Nginx连接传出<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">黑客会使用工具如wget下载你服务器本地的文件。使用Iptables从nginx用户来阻止传出连接。ipt_owner模块试图匹配本地产生的数据包的创建者。下面的例子中只允许user用户在外面使用80连接。</div></span></span><ul><span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left"><li>/sbin/iptables&nbsp;-A OUTPUT -o&nbsp;eth0&nbsp;-m&nbsp;owner –uid-owner vivek&nbsp;-p&nbsp;tcp&nbsp;–dport&nbsp;80 -m&nbsp;state –state NEW,ESTABLISHED  -j&nbsp;ACCEPT</li>
+</div></span></span></ul>
+<br/>
+<span style="font-family: Helvetica"><span style="font-size: 14pt"><div style="text-align: left">通过以上的配置，你的nginx服务器已经非常安全了并可以发布网页。可是，你还应该根据你网站程序查找更多的安全设置资料。例如，wordpress或者第三方程序。<br/>
+</div></span></span></body></html>

@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-07T10:33:24+08:00
+
+====== gentoo ======
+Created Thursday 07 June 2012
+
+    eix-sync  # 同步源码树
+    emerge -avuDN world  # 升级整个系统
+    emerge -cav  # 删除无用包
+    revdep-build  # 重新整理包依赖
+    module-rebuild rebuild   # 重新编译内核模块
+    eix package # 查找package
+    etc-update # 更新配置文件
+    qlist -Iv # 当前安装的包
+    qfile file #
+    equery # 查询依赖及其它

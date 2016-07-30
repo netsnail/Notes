@@ -1,0 +1,15 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-06T17:03:00+08:00
+
+====== iis ======
+Created Wednesday 06 June 2012
+
+===== 双向认证 =====
+'''
+1. 安装CA
+2. IIS添加SSL支持，生成请求，制作服务器证书，下载链
+3. 安装根证书到本地计算机受信任根证书颁发机构（重要）
+4. 制作狗，选高级、选驱动
+'''
+

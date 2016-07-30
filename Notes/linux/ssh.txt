@@ -1,0 +1,77 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-07T10:31:16+08:00
+
+====== ssh ======
+Created Thursday 07 June 2012
+
+* 实现远程端口映射
+	ssh -p9622 xxx@xxx.com -R 9801:localhost:22 -CNfg -o TCPKeepAlive=yes -o ServerAliveInterval=30
+* [[实现本地socks代理]]
+	ssh -p9622 xxx@xxx.com -CNfgD7777
+	curl --socks 127.0.0.1:7777 $url > $dst.file
+
+
+===== .ssh/conf =====
+
+'''
+Host *
+	TCPKeepAlive yes
+	ForwardX11 yes
+
+Host xx.xx.xx.xx
+	User root
+	ProxyCommand corkscrew 192.168.40.112 3128 %h %p
+'''
+
+
+===== linux 限制用户执行命令 =====
+
+一、方法一：
+1、建立用户
+	  useradd test -s /home/test/bin/login.sh -m
+2、创建用户的命令目录
+	  mkdir /home/test/bin
+	  chown test.test -R /home/test
+3、创建登录脚本
+	  vim /home/test/bin/login.sh
+		  #!/bin/sh
+		  stty erase ^H
+		  stty kill ^U
+		  echo -en "SSH to Host :"
+		  read host
+		  echo -en "UserName: "
+		  read username
+		  /usr/bin/ssh $host -l $username
+	给脚本加上执行权限：
+	  chmod +x /home/test/bin/login.sh
+注意:
+	  ^U 是Ctrl+v、Ctrl+u组合输入的
+	  ^H 是Ctrl+v、Ctrl+Backspace输入的
+	  这2个命令是为ssh登录时编辑输入的内容用的。
+这个login.sh中可以增加其它参数，修改它还可以运行其它命令。
+二、方法二
+	用这个登录脚本的内容覆盖其他用户的home目录下的.profile文件，就可以限制那个用户了，需要注意的是在输入状态用户用Ctrl+C可以退出脚本，进入Shell，所以还要加上信号处理：
+#!/bin/sh
+
+stty erase ^H
+stty kill ^U
+
+# signal handler
+exit_()
+{
+	echo -e "\nSSH Interrupted."
+	logout
+}
+
+# Signal handler
+trap exit_ SIGINT SIGTERM SIGQUIT
+
+echo -en "SSH to Host :"
+read host
+echo -en "UserName: "
+read username
+
+/usr/bin/ssh $host -l $username
+
+logout

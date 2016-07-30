@@ -1,0 +1,36 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-06T17:03:56+08:00
+
+====== kvm ======
+Created Wednesday 06 June 2012
+'''
+
+qemu-kvm -localtime -net nic,macaddr=00:00:00:00:00:01 -net tap,ifname=tap0,script=no,downscript=no -m 1024m -smp 2 -usb -sdl -hda .vbox/winxp.img
+'''
+
+
+===== 创建桥接网卡 =====
+
+'''
+brctl addbr br0
+TAP=tap$1
+tunctl -b -u tiger -t $TAP
+brctl addif br0 $TAP
+ifconfig $TAP up
+'''
+
+
+===== USB设备 =====
+
+-device usb-host,hostbus=2,hostaddr=3
+In HOST:
+#lsusb
+#kvm -usb -usbdevice host:xxx:xxx
+In KVM:
+Ctrl+Alt+2
+#info usb
+#info usbhost
+#usb_add host:xxx:xxx
+#info usb
+#usb_del 0.3

@@ -1,0 +1,13 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-06T17:02:54+08:00
+
+====== windows ======
+Created Wednesday 06 June 2012
+
+===== 破解系统密码 =====
+'''
+cd /mnt/windows/Windows/System32/config
+chntpw –l SAM
+chntpw –u geek SAM
+'''

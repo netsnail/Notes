@@ -1,0 +1,22 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-06T17:07:28+08:00
+
+====== oracle ======
+Created Wednesday 06 June 2012
+
+SQL> CREATE TEMPORARY TABLESPACE ECIQ_TEMP TEMPFILE '/u01/app/oracle/oradata/XE/ECIQ_TEMP.DBF' SIZE 128M AUTOEXTEND ON NEXT 32M;
+
+Tablespace created.
+
+SQL> CREATE TABLESPACE ECIQ_DATA LOGGING DATAFILE '/u01/app/oracle/oradata/XE/ECIQ_DATA.DBF' SIZE 1G AUTOEXTEND ON NEXT 32M;
+
+Tablespace created.
+
+SQL> CREATE USER ECIQ IDENTIFIED BY ECIQ DEFAULT TABLESPACE ECIQ_DATA TEMPORARY TABLESPACE ECIQ_TEMP;
+
+User created.
+
+SQL> GRANT CONNECT,RESOURCE TO ECIQ;
+
+Grant succeeded.

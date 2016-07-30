@@ -1,0 +1,32 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-07T10:35:10+08:00
+
+====== aix ======
+Created Thursday 07 June 2012
+
+在 AIX 上，服务也可以称为子系统（Subsystem），它是受控于系统资源控制器（System Resource Controller，SRC）的。SRC 提供了一套命令来控制整个 AIX 系统的子系统，所以，启动和停止相关的服务（子系统）也是要通过这些命令来实现的。也可以修改/etc/inetd.conf来实现。
+
+1.启动子系统：
+'''
+startsrc 负责启动 AIX 上的子系统，一般的用法为：
+startsrc -s inetd 启动 Internet 服务
+startsrc -t ftp 启动 ftp 服务（由于 ftp 服务是属于 inetd 子系统，所以启动 ftp 需要使用 -t 选项。）
+startsrc -g tcpip 启动全部的 tcpip 子系统
+'''
+
+2.停止子系统：
+'''
+stopsrc -h zork -s srctest -f 强制停止主机 zork 上的 secret 子系统。
+stopsrc -a 停止本机的所有子系统
+'''
+
+
+3.刷新子系统
+     ''refresh -g tcpip 刷新子系统，以应用相应的配置修改。''
+
+4.查看系统上的所有子系统
+'''
+lssrc -a 列出本机的所有子系统（无论运行还是没有运行）
+lssrc -g tcpip 列出所有属于 tcpip 组中的子系统
+'''

@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-07T10:42:44+08:00
+
+====== tcpdump ======
+Created Thursday 07 June 2012
+
+''tcpdump -i eth1 -s 0 -n -X host xx.xx.xx.xx and ‘tcp[tcpflags] & tcp-push != 0′''

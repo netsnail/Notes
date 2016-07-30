@@ -1,0 +1,28 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-06T17:02:45+08:00
+
+====== nginx ======
+Created Wednesday 06 June 2012
+
+===== nginx.conf =====
+
+	'''
+	ssl                  on;
+	ssl_certificate      /opt/nginx/server.cer;
+	ssl_certificate_key  /opt/nginx/server.key;
+	ssl_client_certificate /opt/nginx/ca.cer;
+	ssl_verify_client 	on;
+	
+	
+	location /docs {
+	'''
+		'''
+		autoindex on;
+		alias   /share/docs;
+		index  index.html index.htm;
+		'''
+	'''
+	}
+	'''
+

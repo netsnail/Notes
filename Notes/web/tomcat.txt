@@ -1,0 +1,369 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-13T11:41:13+08:00
+
+===== Simple Configure =====
+keytool -genkey -v -alias tomcat -keyalg rsa -validity 3650  -keystore tomcat.ks -dname "cn=223.202.0.138,ou=cn,o=cn,l=cn,st=cn,c=cn" -storepass 123456 -keypass 123456
+
+openssl genrsa -out 211.key 1024
+openssl req -new -key 211.key -out 211.csr
+
+keytool -genkey -alias tomcat.key -keyalg RSA -keystore keystore.jks
+keytool -certreq -keyalg RSA -alias tomcat.key -file tomcat.csr -keystore keystore.jks
+http://ip/certsrv 
+keytool -import -alias ca.cer -keystore keystore.jks -trustcacerts -file ca.cer  
+keytool -import -alias tomcat.cer -keystore keystore.jks -file tomcat.cer  
+1)单向认证
+<Connector port="8443" maxThreads="200"  
+		   scheme="https" secure="true" SSLEnabled="true"  
+			   clientAuth="false" sslProtocol="TLS"   
+			   keystoreFile="keystore.jks" keystorePass="123456" />  
+2)双向认证
+<Connector port="8443" maxThreads="200"  
+		  scheme="https" secure="true" SSLEnabled="true"  
+			  clientAuth="true" sslProtocol="TLS"   
+			  keystoreFile="keystore.jks" keystorePass="123456"  
+			  truststoreFile="keystore.jks" truststorePass="123456"  />  
+
+
+openssl pkcs12 -export -out certificate.pfx -inkey privateKey.key -in certificate.crt -certfile CACert.crt
+keytool -importkeystore -srckeystore server.p12 -destkeystore server.jks -srcstoretype pkcs12
+
+===== How to Use SSL With Tomcat =====
+
+1 	Download the SSL certificate from your preferred certificate authority. Use a keytool CSR -- known as a certificate signing request -- creation tool when generating the certificate application, and save the keystore, or security certificates repository, file in a known location. The keystore file will have the extension .jks.
+
+2 	Specify the certificate details inside the keytool CSR creation tool, filling in all the details. This creates both a private key and a certificate signing request in two files: _name.jks and _name.csr.
+
+Sponsored Links
+
+Wowza 3 Web Based GUI
+Configure, Deploy and Control Wowza Media Server 3 effective and simple
+Www.BonzaWare.Com
+3	Add the following line to the .jks file created by the keytool creation tool:
+
+Keytool --import --trustcacerts --alias server --file sitename.p7b --keystore sitename.jks
+
+4	Substitute the "sitename" with your domain name. A confirmation should be received stating that the "Certificate reply was installed in Keystore." If asked, trust the certificate by choosing "Y" for "Yes."
+
+5	Navigate to the Tomcat's home directory on your server located under the "Config" folder.
+
+6	Open the "Server.xml" file using any text editor. Find a line that reads something like this:
+
+<Connector port= "443"
+
+The above line could also read "8443." This is still acceptable.
+
+7	Uncomment the above line, if commented, and add the following lines if you are using a Linux or a Unix system:
+
+SSLEnabled= "true"
+
+KeyAlias = "server" keystoreFile= "/home/user_name/sitename.jks" keypass="keystore password" />
+
+8	Add the following lines if you are running Tomcat on a Windows system:
+
+KeyAlias = "server" keystoreFile= "C:\Documents and Settings/user_name/sitename.jks" keypass="keystore password" />
+
+9	Insert the keystore file password under the section "keypass= "keystore password"".
+
+10	Save the changes, and restart your Tomcat server to effect the changes.
+
+
+===== Use SSL With Tomcat =====
+
+
+SETTING UP YOUR CA
+-----------------------------------
+
+Step 1.  Go to www.openssl.org and download the source code.  Even Windows
+users need to build it, so you'll need access to a C compiler.  You may be
+able to get hold of prebuilt binaries on the web and you can certainly get
+hold of the GNU C compiler or you can use Borland and Microsoft compilers.
+There are good build instructions included with the source distribution, so
+I won't go into build details.
+
+Step 2.  Create directories to hold your CA keys, your server keys and, if
+you want to use SSL client authentication, your client keys.  For the sake
+of argument let's assume that these directories are called "ssl/ca",
+"ssl/server" and "ssl/client".
+
+Step 3.  Create a private key and certificate request for your own CA:
+openssl req -new -newkey rsa:1024 -nodes -out ssl/ca/ca.csr -keyout
+ssl/ca/ca.key
+
+Step 4.  Create your CA's self-signed certificate (note lasts one year -
+increase the days setting to whatever you want):
+openssl x509 -trustout -signkey ssl/ca/ca.key -days 365 -req -in
+ssl/ca/ca.csr -out ssl/ca/ca.pem
+WINDOWS USERS:If you copy the ca.pem file to ca.crt and edit the file so
+that the strings "TRUSTED CERTIFICATE" read "CERTIFICATE", you can import
+your CA certificate into your trusted root certificates store.
+
+Step 5.  Import the CA certificate into the JDK certificate authorities
+keystore:
+keytool -import -keystore $JAVA_JOME/jre/lib/security/cacerts -file
+ssl/ca/ca.pem -alias my_ca
+
+Windows users need to replace $JAVA_HOME with %JAVA_HOME%.
+
+Step 6.  Create a file to hold your CA's serial numbers.  This file starts
+with the number "2":
+echo "02" > ssl/ca/ca.srl
+
+SETTING UP YOUR WEB SERVER
+----------------------------------------------------
+
+Step 7.  Create a keystore for your web server.
+keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 -keystore
+ssl/server/server.ks -storetype JKS
+
+Step 8.  Create a certificate request for your web server.
+keytool -certreq -keyalg RSA -alias tomcat -file
+ssl/server/server.csr -keystore ssl/server/server.ks
+You need to edit the certificate request file slightly.  Open it up in a
+text editor and amend the text which reads "NEW CERTIFICATE REQUEST" to
+"CERTIFICATE REQUEST"
+
+Step 9.  Have your CA sign your certificate request:
+openssl x509 -CA ssl/ca/ca.pem -CAkey ssl/ca/ca.key -CAserial
+ssl/ca/ca.srl -req -in ssl/server/server.csr -out
+ssl/server/server.crt -days 365
+
+Step 10.  Import your signed server certificate into your server keystore:
+keytool -import -alias tomcat -keystore
+ssl/server/server.ks -trustcacerts -file ssl/server/server.crt
+You should see a message "Certificate reply was installed in keystore".
+
+Step 11.  Import your CA certificate into your server keystore:
+keytool -import -alias my_ca -keystore
+ssl/server/server.ks -trustcacerts -file ssl/ca/ca.pem
+This step is only necessary if you wish to use SSL client authentication
+with Tomcat.
+
+Step 12. Set up an SSL connector for Tomcat.  I assume that you know, or can
+find out, how to do this.  Open up conf/server.xml in a text editor and
+search for the text "keystoreFile".  Ensure that the attribute value is the
+keystore you've created above.
+
+SETTING UP AN SSL CLIENT
+-------------------------------------------
+
+Step 13.  Create a client certificate request:
+openssl req -new -newkey rsa:512 -nodes -out ssl/client/client1.req -keyout
+ssl/client/client1.key
+The common name of the client must match a user in Tomcat's user realm (e.g.
+an entry in conf/tomcat-users.xml).
+
+Step 14.  Have your CA sign your client certificate.
+openssl x509 -CA ssl/ca/ca.pem -CAkey ssl/ca/ca.key -CAserial
+ssl/ca/ca.srl -req -in ssl/client/client1.req -out
+ssl/client/client1.pem -days 365
+
+Step 15.  Generate a PKCS12 file containing your server key and server
+certificate.
+openssl pkcs12 -export -clcerts -in ssl/client/client1.pem -inkey
+ssl/client/client1.key -out ssl/client/client1.p12 -name
+"my_client_certificate"
+
+Step 16.  Import the PKCS12 file into your web browser to use as your client
+certificate and key.
+
+Repeat steps 13-16 as often as required.
+
+Step 17.  Enable client certificate authentication in Tomcat.  Open up
+conf/server.xml and search for the text "clientAuth".  Set the value of the
+attribute to "true".
+
+I apologize in advance for any typing errors.  Hopefully, it's all correct
+and you should all be able to get up to speed with OpenSSL.
+
+
+===== A Simple Step-By-Step Guide To Apache Tomcat SSL Configuration =====
+
+Secure Socket Layer (SSL) is a protocol that provides security for communications between client and server by implementing encrypted data and certificate-based authentication.  Technically, the term "SSL" now refers to the Transport Layer ouSecurity (TLS) protocol, which is based on the original SSL specification.  
+
+SSL is one of the most common ways of integrating secure communication on the internet, as it is a mature protocol that is well-supported by every major browser and a number of well-respected organizations provide third party SSL authentication services. 
+
+ If you're using Apache Tomcat, chances are that at least some of the data you're handling is sensitive, and SSL is an easy way to offer your users security. The good news is that Tomcat fully supports the SSL protocol.  The bad news is that the configuration process and SSL itself can be a little confusing for first-time users.  
+
+Don't worry!  To help you get SSL working with your Tomcat servers, we've assembled a simple, comprehensive, step-by-step guide to using SSL with Tomcat.  From an overview of how the protocol actually works, to clear, simple configuration instructions, this guide will help you get SSL running on your server in no time.
+
+Tcat eliminates tedious configuration tasks.  Create the correct configuration a single time, save it to a server profile, and apply it to other instances (or groups of instances) with a single click.  Try Tcat for free today!
+How SSL Works
+Before we start configuring Tomcat to use SSL, it will help to understand why the SSL protocol was created, and how it works.  If you already know all this stuff and are just looking to get SSL working with Apache Tomcat, click here to jump to a step-by-step configuration guide.
+
+SSL Basics
+The SSL protocol aims to provide solutions to two simple security problems:
+
+How can we securely transmit data between two parties in such a way that only the two parties can read it?
+How can one (or more) of the parties involved prove that they are actually the entity we want to grant the ability to decrypt our encrypted transmission? 
+SSL's answer to the first question is encryption.  Before transmitting any data, the sender encrypts its message, and the receiver must in turn decrypt the message before processing it.  The encryption and decryption is accomplished through a method called "public key encryption."
+
+SSL's answer to the second question is also part of the answer to the first question.  In order for public key encryption to provide secure communication, one more more of the communicating parties must have some way of proving to the other that they are, in fact, who they claim to be.  SSL provides this proof by requiring that one or more of the parties present a digital certificate into the initial negotiation of the connection, prior to the transmission of any encrypted data.  This process is called "handshaking."
+
+To ensure that the certificate is a valid proof of identity, SSL contacts a trusted third party server specified in the certificate, called a Certificate Authority (CA).  A Certificate Authority is a trusted company that agrees to vouch for the identity of a site, usually for a fee.  Generally, the more widely the CA is known as a reputable organization, the more they will charge you per year to verify your site's identity.  Examples of well-respected CA's include Verisign and Digicert.
+
+HTTPS vs. HTTP
+The most common way that SSL is integrated into Internet communications is through the HTTPS protocol.  Calling HTTPS a "protocol" is not entirely accurate, as it is simply a combination of the HTTP and SSL protocols.  When we say a message was sent using HTTPS, what we are actually saying is that the message was first encrypted using SSL, transmitted and received using normal HTTP protocol, and then decrypted by the receiver, also with SSL.  
+
+So that's SSL in a (very basic) nutshell.  To sum up:
+
+SSL offers security through encryption 
+the encryption process is made possible through the use of digital certificates verified by a third party Certificate Authority
+the most common implementation of this process is the HTTPS combination protocol.
+Looks good!  Now, let's get SSL working with your Tomcat Server.
+
+Using SSL With Tomcat
+Configuring Tomcat to use SSL connections can be a bit tricky the first time around, but if you follow this step by step guide, you should it up and running in no time.
+
+When To Use SSL With Tomcat
+Before you go through the trouble of getting SSL up and running, it's a probably a good idea to determine if you actually should be using this configuration.  The most common reason you'd need to use Tomcat to handle SSL connections would be if you are running Tomcat as a stand-alone web server.  
+
+In other words, if you're fronting Tomcat with a web server and using it only as an application server or Tomcat servlet container, in most cases you should let the web server function as a proxy for all SSL requests.  
+
+Why?  Because all that decryption, encryption, and handshaking isn't free - actually, it's not just "not free," it's quite CPU-intensive, and it significantly slows down the speed of transmission.  In other words, if you're already using a web server to serve your static content, you're better off letting it handle all that, freeing up your Tomcat server to focus on its specialty - quickly generating dynamic content, and allowing it to get that data to your web server as quickly as possible, in cleartext.
+
+If, however, your site is small enough that you don't need to mess around with an additional web server, then Tomcat will happily handle your SSL needs.  Here's how to get it working.
+
+Configuring Tomcat To Use SSL
+Setting up SSL for Tomcat can be pided into two main tasks: creating a functional keystore, and configuring the Tomcat connectors and applications.  Let's tackle them one at a time.
+
+PART I - The Keystore
+Step 1 - Creating the Keystore
+The keys Tomcat will use for SSL transactions are stored in a password-protected file called, creatively, the "keystore."  The first step to enabling SSL on your server is to create and edit this file.  You can create this file in one of two ways - by importing an existing key into the keystore, or by creating an entirely new key.  
+
+In the interest of simplicity, this guide will only cover the latter (but you can find instructions for importing keys on Apache's Tomcat Documentation site).
+
+A program called keytool, which is included with your JDK, will do the actual work of creating your new keystore.  To create a new keystore using this program, enter the following command at the command-line, substituting syntax appropriate for your OS:
+
+$JAVA_HOME/bin/keytool -genkey -alias [youralias] -keyalg RSA -keystore [/preferred/keystore/path]
+
+Use an [alias] and [path] of your choice.
+
+Next, keytool will ask you to enter the password you want to use for the keystore.  Again, choose whatever you like (but don't forget it).
+
+After you choose the keystore password, you will enter the information required for the Certificate, such as your company and your name.  Make sure this information is accurate, as you will have to submit this file to the Certificate Authority of your choice to obtain a certificate.
+
+The last thing keytool will ask you to specify is the key password, which is the password specific to this specific certificates.  Rather than enter anything at this prompt, just press ENTER.  
+
+This will cause keytool to set the key password to a value equivalent to the keystore password.  Matching passwords are REQUIRED for Tomcat to access the certificate.  If you choose two different passwords, any attempts to access the keystore will result in a crash (so don't do it).  
+
+Congratulations - if you followed the directions correctly, you should now have a usable keystore file named [youralias], located in the directory you chose.
+
+Step 2 - Creating the Certificate Signing Request
+Now that you've created your keystore, it's time to create a file called the Certificate Signing Request, or CSR, which will be used by the Certificate Authority of your choice to generate the Certificate SSL will present to other parties during the handshake.
+
+You can use the keytool to create this file, as well.  To do so, enter the following at the command line:
+
+$JAVA_HOME/bin/keytool -certreq -keyalg RSA -alias [youralias] -file [yourcertificatname].csr -keystore [path/to/your/keystore]
+
+Substitute the values you chose earlier for the [placeholders].  
+
+If you follow the instructions correctly, keytool will create a file called yourcertificatename.csr, which you can submit to the CA you've chosen via the process they provide on their website.  Using this file, they will generate a custom certificate for your server, which you can download according to the instructions they provide on their website.
+
+Step 3 - Installing Your New Certificate
+Getting tired yet?  Don't worry - there's light at the end of the tunnel.  This is the last thing you'll need to do to create a keystore for Tomcat to use.  Well, the last two things.  Hang in there!
+
+SSL verifies the authenticity of a site's certificate by using something called a "chain of trust," which basically means that during the handshake, SSL initiates an additional handshake with the Certificate Authority specified in your site's certificate, to verify that you haven't simply made up your own CA.  
+
+In order to "anchor" your certificate's chain of trust, you have to download an additional certificate, called a "Root Certificate," from your CA, and then import both this certificate and your site's new certificate into your keystore.  Your CA should provide information about obtaining a Root Certificate on their website.   
+
+Once you've downloaded both your own Certificate and the Root certificate provided by your CA, import them into your keystore with the following commands, replacing the [placeholders]:
+
+To import the Root Certificate -
+
+keytool -import -alias root -keystore [path/to/your/keystore] -trustcacerts -file [path/to/the/root_certificate]
+
+To import your new Certificate - 
+
+keytool -import -alias [youralias] -keystore [path/to/your/keystore] -file [path/to/your_keystore]
+
+Do everything right?  Then pat yourself on the back - you are now the proud owner of a functional, certified keystore.
+
+PART II - Configuring Tomcat to use SSL
+Now that we have a functional keystore populated with valid certificates, it's time to configure Tomcat to use SSL.  First, we'll configure Tomcat's SSL connectors, and then we'll specify which webapps we want to use SSL by default. 
+
+Step 1 - Configuring Tomcat's SSL Connectors
+Tomcat's global Connector options are configured in Tomcat's main configuration file, "$CATALINA_BASE/conf/server.xml", so you should open this file now.  The Connectors we are looking for connect on port 8443 by default, so search for this port, until you come across an entry that looks like this:
+
+<!-- Define a SSL HTTP/1.1 Connector on port 8443
+
+		 This connector uses the JSSE configuration, when using APR, the 
+
+		 connector should be using the OpenSSL style configuration
+
+		 described in the APR documentation -->
+
+	<!--
+
+	<Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true"
+
+			   maxThreads="150" scheme="https" secure="true"
+
+			   clientAuth="false" sslProtocol="TLS" />
+
+	-->
+
+You'll notice that the comment enclosing this connector talks about a choice between APR and JSSE configurations.  This refers to the implementation of SSL you are intending to use.  JSSE, which is Tomcat's default configuration, is supported by default, and included in all JDKs after version 1.4.  So if you don't even know what APR is, you only need to uncomment this entry, and add some additional information to allow Tomcat to find your keystore:
+
+<Connector port="8443" maxThreads="150" scheme="https" secure="true" SSLEnabled="true" keystoreFile="path/to/your/keystore" keystorePass="YourKeystorePassword" clientAuth="false" keyAlias="yourAlias" sslProtocol="TLS"/>
+
+If, on the other hand, you know that using the Apache Portable Runtime (APR), also known as Tomcat's "native library," is by far the best practice to follow, especially when using Tomcat as a standalone web server (which you probably are), and have already installed it on your server, then you'll need to alter this entry as follows to allow Tomcat to use APR's OpenSSL implementation in place of JSSE, or trying to use SSL will generate an error:
+
+<Connector port="8443" scheme="https" secure="true" SSLEnabled="true" SSLCertificateFile="/path/to/your/certificate.crt" SSLCertificateKeyFile="/path/to/your/keyfile" SSLPassword="YourKeystorePassword" SSLCertificateChainFile="path/to/your/root/certificate" keyAlias="yourAlias" SSLProtocol="TLSv1"/>
+
+Notice that if you are using APR, the "SSLCertificateFile" and "SSLCertificateKey"-type attributes are used in place of the keystoreFile attribute.  For more information on the differences between using APR in place of JSSE, consult Apache's Tomcat APR Documentation. 
+
+Restart Tomcat.  Once you're up and running again, test your configuration by connecting to a secure page, using a URL such as https://[yourhost]:8443.  If you followed the directions correctly, you should be able to view the page over a secure HTTPS connection!
+
+Step 2 - Limiting SSL Usage
+Enabling SSL in Tomcat's server.xml file causes all files to be run both as secure and insecure pages, which can cause unnecessary server load.  You can choose which applications offer SSL connections on a per-application basis by adding the following <security-constraint> element to the application's WEB-INF/web.xml file:
+
+<security-constraint>
+
+<web-resource-collection>
+
+<web-resource-name>YourAppsName</web-resource-name>
+
+<url-pattern>/*</url-pattern>
+
+</web-resource-collection>
+
+<user-data-constraint>
+
+<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+
+</user-data-constraint>
+
+</security-constraint>
+
+This configuration allows you to set SSL options for all an application's pages in one place.  For example, to disable SSL for all your application's pages, change "CONFIDENTIAL" to "NONE".
+
+Additional Considerations
+In the interest of simplicity, this guide does not cover all of the elements of SSL configuration (although they are covered extensively in Apache's Tomcat SSL Documentation).  We will, however, provide you with a short list of other options and important areas of note to consider as you tweak your SSL configuration.
+
+Specifying Implementation
+If you have configured connectors for both APR and JSSE, Tomcat will use APR by default if you have installed the native libraries.  You can force it to use JSSE by modifying a Connector's "protocol" attribute as follows:
+
+<Connector protocol="org.apache.coyote.http11.HTTP11NioProtocol">
+
+If you want to force APR, you can do so with a similar edit:
+
+<Connector protocol="org.apache.coyote.http11.Http11AprProtocol">
+
+Common Errors Caused By Aliases and Passwords
+If you encounter any errors with your SSL configuration, make sure that you have correctly entered settings such as keystore passwords and aliases.  These values are case sensitive for some of the supported keystore formats.
+
+
+===== Importing existing keys and certificates into java keystore files =====
+
+Making Java keystores at the same time as you create a CSR and key is pretty easy, but if you have a pre-made private key that you want to throw into a keystore, it can be difficult. However, follow these steps and you'll ber done quickly!
+
+Save the new certificate to server.crt and the new key to server.key. If intermediate certificates are necessary, then place all of the certificates into a file called cacert.crt. Now, you will have to make a PKCS #12 file:
+
+openssl pkcs12 -export -inkey server.key -in server.crt -name tomcat-domain.com -certfile cacert.crt -out domain.com.p12
+
+To perform the rest of the work, you will need a copy of the KeyTool GUI. In the GUI, make a new keystore in JKS format. Import the PKCS #12 key pair, and save the keystore as a JKS. Upload the keystore to the server and then configure the keystore within Tomcat/JBoss.
+
+
+

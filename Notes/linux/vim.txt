@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-07T10:29:09+08:00
+
+====== vim ======
+Created Thursday 07 June 2012
+
+''%s/foo.x/\=strpart(submatch(1).'bbb', 0)/g''

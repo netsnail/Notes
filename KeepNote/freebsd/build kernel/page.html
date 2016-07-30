@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>build kernel</title>
+</head><body>Boot in Single-User Mode or Simply to Command Prompt<br/>
+<br/>
+Login as Superuser:<br/>
+<br/>
+<b>su&nbsp;</b><br/>
+Install the Kernel Extension Package:<br/>
+<br/>
+<b>pkg&nbsp;install subversion compat6x-amd64</b><br/>
+FreeBSD&nbsp;10 Getting Started Searching and Installing Packages:<br/>
+<br/>
+FreeBSD&nbsp;10 pkg&nbsp;Quick-Start<br/>
+FreeBSD&nbsp;10 Packages Management.<br/>
+Install a Custom Kernel with Extensions<br/>
+<br/>
+Download the FreeBSD&nbsp;10 Distribution Sources<br/>
+<br/>
+<b>svn&nbsp;co https://svn0.us-west.freebsd.org/base/stable/10 /usr/src</b><br/>
+Here Take a Break Because you need to Wait for a Long Wile…<br/>
+<br/>
+Make a New Kernel Configuration File<br/>
+<br/>
+<b>cd&nbsp;/usr/src/sys/amd64/conf<br/>
+</b>If Do Not Know How to Proceed then You should Simply use the Default Config&nbsp;File:<br/>
+<br/>
+<b>cp&nbsp;GENERIC MYKERNEL</b><br/>
+Build a Custom Kernel<br/>
+<br/>
+<b>cd&nbsp;/usr/src</b><br/>
+<b>make -j&nbsp;`sysctl&nbsp;-n&nbsp;hw.ncpu` buildworld<br/>
+</b>Here Take another Time-Out Waiting for a Wile…<br/>
+<br/>
+<b>make -j&nbsp;`sysctl&nbsp;-n&nbsp;hw.ncpu` buildkernel&nbsp;KERNCONF=MYKERNEL</b><br/>
+Last Keep Patient and Still Wait Again for a While until the Process is Achieved with:<br/>
+<br/>
+Kernel build for MYKERNEL&nbsp;completed<br/>
+<br/>
+Lastly Install the New Kernel<br/>
+<br/>
+<b>make installkernel&nbsp;KERNCONF=MYKERNEL</b></body></html>

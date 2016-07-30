@@ -1,0 +1,74 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-11T20:06:44+08:00
+
+====== css ======
+Created Monday 11 June 2012
+
+===== 一般常用 =====
+
+'''
+font: italic bold 12px Georgia,"Times New Roman",Times,arial,sans-serif;    // style variant weight size family
+background: red url(../img/x.png) no-repeat fixed top left;      // color image repeat attachment position
+border: thin solid red;    // width style color
+'''
+
+
+===== 背景透明 =====
+
+'''
+background: none transparent;
+filter: alpha(opacity=20);
+zoom: 1;
+visibility: visible;
+opacity: 0.2;
+'''
+
+
+===== 圆角(不支持IE) =====
+
+'''
+-moz-border-radius: 5px;
+-webkit-border-radius: 5px;
+border-radius: 5px;
+'''
+
+
+===== Iframe autoResize =====
+
+
+現在應用 iframe 這個標籤是愈來愈頻繁, 有人覺得不應該用 iframe, 但是 W3C 在 html 4.0時就把 IE 專用的 tag 加進來了(maqree也是), 其實好用的 tag, 我覺得都應該加進來, 可以方便網頁的製作和效果的呈現(當然不要爛用), 而不該只是故步自封. 但是 ifame 用的不好常會有問題, 所以還是要小心點, 例如它的連結 target 的問題..
+
+最常見的是希望它能自動 resize, 於是, 終於找到了, 自動 resize 的方法, 前提是要在 iframe 上設固定的寬度.
+
+
+先將這個 function 加在 head 裡,
+
+function calcHeight(the_iframe){
+var iframeElement = document.getElementById(the_iframe);
+if(document.getElementById && !(document.all)) {
+h = iframeElement.contentDocument.body.scrollHeight;
+//w = iframeElement.contentDocument.body.scrollWidth;
+iframeElement.style.height = h + 'px';
+//iframeElement.style.width = w + 'px';
+}
+else{
+h = document.frames(the_iframe).document.body.scrollHeight;
+//w = document.frames(the_iframe).document.body.scrollWidth;
+document.all(the_iframe).style.height = h;
+//document.all(the_iframe).style.width = w;
+  }
+}
+然後在 body 裡, 放你想要放的 iframe,
+
+<!--afc-->
+<iframe onLoad="calcHeight('act_frame');" id="act_frame" name="afc_frame" scrolling="NO" frameborder="0" src="http://diary.yam.com/www/AFC/afc_diary_iframe.html" width="540"></iframe>
+<!--/afc-->
+範例:http://diary.yam.com/www/AFC/afc_diaryhercafe_test.html
+
+update:
+發現IE對於 iframe 的解釋很奇怪, 當你的 iframe 裡什麼都沒有時, 它在主頁會出現一個 19px 的高度的 block, 假如你加入一段 js, 不管你加多少, 它會出現 150px 的高度, 如果你是加入 html 就會自動變高, 而 FF 卻不會有這個狀況, 反而把 iframe 解釋的很正確.
+為了解決IE的狀況, 而廣告的高度是可以預測的, 就要修改成下面的寫法.
+document.all(the_iframe).style.height = (h<20 || h==150)? 0 : h+’px’;
+
+

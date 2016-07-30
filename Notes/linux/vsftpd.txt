@@ -1,0 +1,52 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2015-07-07T15:52:12+08:00
+
+====== vsftpd ======
+Created Tuesday 07 July 2015
+
+==== mysql ====
+CREATE TABLE `ftpuser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(80) DEFAULT NULL,
+  `password` varchar(80) DEFAULT NULL,
+  `status` int(1) DEFAULT '0',
+  PRIMARY KEY (`id`)
+);
+CREATE TABLE `ftplog` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(80) DEFAULT NULL,
+  `pid` varchar(20) DEFAULT NULL,
+  `host` varchar(24) DEFAULT NULL,
+  `msg` varchar(200) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
+==== /etc/pam.d/vsftpd ====
+auth       optional     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
+account    required     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
+
+auth       optional     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
+account    required     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
+
+
+==== /etc/vsftpd/vsftpd.conf ====
+listen=YES
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+local_umask=022
+nopriv_user=vsftpd
+connect_from_port_20=YES
+pasv_enable=NO
+user_sub_token=$USER
+local_root=/ftp/$USER
+chroot_local_user=YES
+hide_ids=YES
+guest_enable=YES
+guest_username=vsftpd
+virtual_use_local_privs=YES
+pam_service_name=vsftpd
+
+

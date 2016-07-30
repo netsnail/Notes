@@ -1,0 +1,37 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-03-09T13:41:04+08:00
+
+====== virtual ======
+Created Sunday 09 March 2014
+
+===== Hyper-V Controllers: IDE or SCSI? =====
+
+There’s been plenty of blog posts out there saying that there is no support for SCSI in Hyper-V.  That’s not true.  What is true is this.  You can use SCSI controllers for disks but not for your boot disk.  Your boot disk must be on an IDE controller.
+
+When using emulated storage controllers, i.e. no integration components then IDE is slower than SCSI.  However, there is no discernable difference between SCSI and IDE when using sythentic drivers, i.e. integration components or VM additions.
+
+Setting Up VM’s
+
+How do you set up your VM’s?  You have no choice about your boot disk.  You must use a disk connected to the IDE controller.  You can’t move that to the SCSI controller because you cannot boot from a Hyper-V SCSI controller.  Lightweight VM’s can probably put everything on one virtual disk and run on the IDE controller.
+
+However, best practice is to separate your data/workload from your operating system.  Consider a virtual application server where the operating system is on C: and the workload is on D:.  C: will be a virtual disk on the IDE controller.  D: should be a virtual disk on a SCSI controller if you don’t have integration components.  This makes the most of the underlying Hyper-V architecture and optimises CPU utilisation on the host server.  However, if you have integration components then it makes no difference whether you use SCSI or IDE for the workload disk.
+
+What really makes a difference is the underlying physical storage and the types of VHD that you use.  Passthrough disks are physical speed.  Fixed Sized VHD currently get to within 6% of the speed of the underlying physical LUN, assuming you have 1 VHD per LUN.  Dynamic and Differencing VHD’s have great impacts on performance.
+
+--2
+There has been some confusion over when users should use SCSI or IDE virtual hard disk inside of their virtual machines.  The first thing to note is that it does not matter what sort of physical hard disk you have in your computer when you are making this decision.
+
+There are a number of factors to consider:
+
+Our emulated IDE can only support 4 disks, while our emulated SCSI supports up to 28 disks
+Our emulated IDE can only support up to 128GB disks, while our emulated SCSI can support up to 2TB disks
+Our emulated IDE controller has a higher level of driver support for various operating systems than our emulated SCSI controller
+The final thing to consider is performance - and this is a bit tricky.  Contrary to common sense, the performance of our emulated SCSI controller is slower than that of our emulated IDE controller.  The reason for this is that the SCSI controller is a lot more complicated to emulate than the IDE controller.  Now - this changes once you have Virtual Machine Additions installed.  As part of Virtual Machine Additions we install an accelerated SCSI driver.  Once this driver is installed the performance of our emulated SCSI controller is significantly faster than our emulated IDE controller.
+
+So with all of this in mind, my recommendation is this:
+
+If you are running Windows NT, 2000, XP, 2003 with Virtual Machine Additions installed; use SCSI.
+If you are running any other configuration; use IDE unless you specifically use more than 4 disks, or larger than 128gb disks
+Cheers,
+Ben

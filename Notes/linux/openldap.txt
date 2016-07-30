@@ -1,0 +1,38 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-19T16:28:25+08:00
+
+====== openldap ======
+Created Tuesday 19 July 2016
+
+==== Configuring LDAPS ====
+
+Once your LDAP server is up and running, be sure to backup your configuration before trying to configure LDAPS. If you break your configuration with the "cn=config" style, the LDAP server will not restart.
+
+Now, first, you must enable ldaps port in /etc/default/slapd :
+
+
+SLAPD_SERVICES="ldap://127.0.0.1:389/ ldaps:/// ldapi:///"
+Configuring the certificate (and possibly the CA used) in slapd config :
+
+in /etc/ldap/slapd.conf:
+
+
+TLSCACertificateFile    /etc/ssl/certs/server-intermediate.pem
+TLSCertificateKeyFile   /etc/ssl/private/server-key.pem
+TLSCertificateFile      /etc/ssl/certs/server-cert.pem
+or add attributes to cn=config (for Debian Squeeze or later). Create a olcSSL.ldif file with:
+
+dn: cn=config
+add: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/ssl/certs/server-intermediate.pem
+-
+add: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/ssl/private/server-key.pem
+-
+add: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/ssl/certs/server-cert.pem
+and import the settings with ldapmodify:
+
+
+  # ldapmodify -Y EXTERNAL -H ldapi:/// -f ./olcSSL.ldif

@@ -1,0 +1,181 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-06T17:13:02+08:00
+
+openssl genrsa -out cakey.pem 1024
+openssl req -new -out careq.csr -key cakey.pem
+openssl x509 -req -in careq.csr -out cacert.pem -signkey cakey.pem -days 3650
+
+keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 -keypass 123456 -keystore tomcat.jks -storepass 123456
+keytool -certreq -alias tomcat -file certreq.csr -keypass 123456 -keystore tomcat.jks -storepass 123456
+
+mkdir -pv demoCA/
+touch demoCA/index.txt
+echo FACE > demoCA/serial
+openssl ca -keyfile cakey.pem -cert cacert.pem -in certreq.csr -out tomcatcert.pem -policy policy_anything
+
+openssl x509 -in cacert.pem -out cacert.cer
+openssl x509 -in tomcatcert.pem -out tomcatcert.cer
+keytool -keystore tomcat.jks -storepass 123456 -import -alias ca -file cacert.cer
+keytool -keystore tomcat.jks -storepass 123456 -import -alias tomcat -file tomcatcert.cer
+
+openssl genrsa -out client.key 1024
+openssl req -new -key client.key -out client.csr 
+openssl ca -in client.csr -out client.cer -cert cacert.cer -keyfile cakey.pem -notext
+openssl pkcs12 -export -out client.pfx -inkey client.key -in client.crt -certfile cacert.cer
+
+# 生成自签名的证书
+openssl req -x509 -nodes -days 36500   -newkey rsa:1024    -keyout server.key -out server.cer
+
+===== new_ca.sh =====
+'''
+
+# Generate the key.
+'''
+     ''mkdir -p demoCA/newcerts ''
+''openssl genrsa -out demoCA/ca.key''
+''# Generate a certificate request.''
+''openssl req -new -key demoCA/ca.key -out demoCA/ca.csr''
+''# Self signing key is bad... this could work with a third party signed key... registeryfly has them on for $16 but I'm too cheap lazy to get one on a lark.''
+''# I'm also not 100% sure if any old certificate will work or if you have to buy a special one that you can sign with. I could investigate further but since this''
+''# service will never see the light of an unencrypted Internet see the cheap and lazy remark.''
+''# So self sign our root key.''
+''openssl x509 -req -days 36500 -in demoCA/ca.csr -signkey demoCA/ca.key -out demoCA/ca.crt''
+''# Setup the first serial number for our keys... can be any 4 digit hex string... not sure if there are broader bounds but everything I've seen uses 4 digits.''
+''echo FACE > demoCA/serial''
+''# Create the CA's key database.''
+''touch demoCA/index.txt''
+''# Create a Certificate Revocation list for removing 'user certificates.'''
+''#openssl ca -gencrl -out demoCA/ca.crl -crldays 7''
+
+
+===== new_server.sh =====
+
+'''
+# Create us a key. Don't bother putting a password on it since you will need it to start apache. If you have a better work around I'd love to hear it.
+mkdir -p server
+openssl genrsa -out server/server.key
+# Take our key and create a Certificate Signing Request for it.
+openssl req -new -key server/server.key -out server/server.csr
+# Sign this bastard key with our bastard CA key.
+openssl ca -days 36500 -in server/server.csr -cert demoCA/ca.cer -keyfile demoCA/ca.key -out server/server.cer
+'''
+
+
+===== new_client.sh =====
+
+'''
+# Let's create us a key for this user... yeah not sure why people want to use DES3 but at least let's make us a nice big key.
+mkdir -p client
+openssl genrsa -des3 -out client/$1.key 1024
+# Create a Certificate Signing Request for said key.
+openssl req -new -key client/$1.key -out client/$1.csr
+# Sign the key with our CA's key and cert and create the user's certificate out of it.
+openssl ca -days 36500 -in client/$1.csr -cert demoCA/ca.crt -keyfile demoCA/ca.key -out client/$1.crt
+
+# This is the tricky bit... convert the certificate into a form that most browsers will understand PKCS12 to be specific.
+# The export password is the password used for the browser to extract the bits it needs and insert the key into the user's keychain.
+# Take the same precaution with the export password that would take with any other password based authentication scheme.
+#openssl pkcs12 -export -clcerts -in client/$1.crt -inkey client/$1.key -out client/$1.p12
+openssl pkcs12 -export -out client/$1.pfx -inkey client/$1.key -in client/$1.cer -certfile demoCA/ca.cer
+'''
+
+
+===== 创建一个加密的代理服务器 =====
+
+众所周知，在大陆不能自由的访问互联网，为此人们想出了各种办法，真是八仙过海各显神通，然而，很多办法是既绕圈子，又没有普遍应用的意义，使用ssh tunnel实际上效率是很低的，使用GAE是朝不保夕的，使用VPN是时快时慢的，因为ssh不是为了这个目的而开发，GAE也不是，VPN就更不是为了高速访问而设置的了，今天我们要介绍的是具有普遍的意义的代理服务器squid和stunnel，力求让我们的穿越达到一个保持高速访问，但又经过了加密的境界。
+
+其实这二者组合并不新鲜，也并不罕见，下面说说这个组合的 应用条件：
+
+1，一台运行在自由世界的服务器，或者虚拟机，比如美帝或者香港。
+2，这台服务器上安装了squid，或者可以安装squid。
+3，当然，你必须要可以从中国大陆连接它。
+
+首先我们来配置安装好的squid，很多旧的案例使用stunnel加密squid端口，然后在客户机上使用stunnel解密，这是多走了一个弯路，squid自身已经支持加密的代理方法，在服务器上，我们根本就不需要运行stunnel，例如我们要将这个加密的代理运行在服务器IP地址为216.218.186.2的443端口，具体配置参数如下：
+
+https_port 216.218.186.2:443    cert=/etc/squid/hnair.com.crt key=/etc/squid/hnair.com.key
+
+其中，hnair.com.crt和hnair.com.key是使用openssl生成用于加密的数字证书和密钥，关于自行生成数字证书的方法，可参考如下：
+
+openssl req -new > hnair.com.csr
+
+openssl rsa -in privkey.pem -out hnair.com.key
+
+openssl x509 -in hnair.com.csr -out hnair.com.crt -req -signkey hnair.com.key -days 3650
+
+然后启动squid即可。
+
+接下来，我们需要对客户端进行配置，不管你是Windows还是Linux，都可以到这里下载：ftp://ftp.stunnel.org/stunnel/
+
+将相应的stunnel压缩包解压缩或者安装，添加一个配置文件(stunnel.conf)至程序的目录：
+
+client = yes
+[ssl2http] accept = 127.0.0.1:8080
+connect = 216.218.186.2:443
+
+注意，有些Linux发行版中，例如Ubuntu，在进行apt-get安装stunnel的时候，stunnel v3和v4都会安装上去，此时应该使用stunnel4来运行，直接运行 /usr/bin/stunnel4 即可，在Windows中不存在这个问题。
+
+然后，我们将浏览器的代理服务器设置为本机的8080端口，也就是127.0.0.1:8080，即可使用一个加密的通道，自由的访问互联网了，实际上，这个方法被广泛应用在XX功的网站上，只不过他们用的是Apache做反向代理，因为上面还有他们的网站，虽然总是胡说八道来着，由于我们不需要在上面运行网站，所以squid代理服务器是最佳选择。
+
+我很好奇为什么那么多人在卖ssh代理，却没有人卖加密的squid，在squid上添加用户身份验证，即可达到类似的效果，究其原因，其实还是有两个：
+
+第一，ssh代理可以实现socks请求转发，有些应用可能需要。
+
+第二，ssh代理本身效率不高，可以防止用户滥用，流量超荷，而加密的squid如果没有流量限制，那显然是一场悲剧。
+
+
+==== 证书格式简介及不同格式之间的转换方式 ====
+
+1.证书格式
+
+PEM 格式
+
+PEM格式通常用于数字证书认证机构（Certificate Authorities，CA），扩展名为.pem, .crt, .cer, and .key。内容为Base64编码的ASCII码文件，有类似"-----BEGIN CERTIFICATE-----" 和 "-----END CERTIFICATE-----"的头尾标记。服务器认证证书，中级认证证书和私钥都可以储存为PEM格式（认证证书其实就是公钥）。Apache和类似的服务器使用PEM格式证书。
+
+DER 格式
+
+DER格式与PEM不同之处在于其使用二进制而不是Base64编码的ASCII。扩展名为.der，但也经常使用.cer用作扩展名，所有类型的认证证书和私钥都可以存储为DER格式。Java使其典型使用平台。
+
+PKCS#7/P7B 格式
+
+PKCS#7 或 P7B格式通常以Base64的格式存储，扩展名为.p7b 或 .p7c，有类似BEGIN PKCS7-----" 和 "-----END PKCS7-----"的头尾标记。PKCS#7 或 P7B只能存储认证证书或证书路径中的证书（就是存储认证证书链，本级，上级，到根级都存到一个文件中）。不能存储私钥，Windows和Tomcat都支持这种格式。
+
+PKCS#12/PFX 格式
+
+PKCS#12 或 PFX格式是以加密的二进制形式存储服务器认证证书，中级认证证书和私钥。扩展名为.pfx 和 .p12，PXF通常用于Windows中导入导出认证证书和私钥。
+
+ 
+
+2.转换方式
+
+可以使用OpenSSL命令行工具在不同证书格式之间的转换
+
+ 
+
+PEM to DER
+
+openssl x509 -outform der -in certificate.pem -out certificate.der
+
+PEM to P7B
+
+openssl crl2pkcs7 -nocrl -certfile certificate.cer -out certificate.p7b -certfile CACert.cer
+
+PEM to PFX
+
+openssl pkcs12 -export -out certificate.pfx -inkey privateKey.key -in certificate.crt -certfile CACert.crt
+
+DER to PEM
+
+openssl x509 -inform der -in certificate.cer -out certificate.pem
+
+P7B to PEM
+
+openssl pkcs7 -print_certs -in certificate.p7b -out certificate.cer
+
+PFX to PEM
+
+openssl pkcs12 -in certificate.pfx -out certificate.cer -nodes
+
+PXF转PEM后certificate.cer文件包含认证证书和私钥，需要把它们分开存储才能使用。
+
+
