@@ -3,8 +3,8 @@ Wiki-Format: zim 0.4
 Creation-Date: 2013-05-15T18:33:37+08:00
 
 http://www.bertera.it/index.php/2012/03/04/how-to-push-a-public-ip-on-your-laptop-using-ssh-bridged-tunnel/
-112.4.150.148
-root/shanshan0907 端口62222
+
+[[http://www.bertera.it/index.php/2012/03/04/how-to-push-a-public-ip-on-your-laptop-using-ssh-bridged-tunnel/112.4.150.148|112.4.150.148/]]62222/shanshan0907 
 
 ssh 和vnc都用bjql/bjql2013这个用户进去
 

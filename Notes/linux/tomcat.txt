@@ -3,7 +3,7 @@ Wiki-Format: zim 0.4
 Creation-Date: 2012-06-13T11:41:13+08:00
 
 ===== Simple Configure =====
-keytool -genkey -v -alias tomcat -keyalg rsa -validity 3650  -keystore tomcat.ks -dname "cn=223.202.0.138,ou=cn,o=cn,l=cn,st=cn,c=cn" -storepass 123456 -keypass 123456
+keytool -genkey -v -alias tomcat -keyalg rsa -validity 3650  -keystore tomcat.ks -dname "cn=xxxx,ou=cn,o=cn,l=cn,st=cn,c=cn" -storepass 123456 -keypass 123456
 
 openssl genrsa -out 211.key 1024
 openssl req -new -key 211.key -out 211.csr
