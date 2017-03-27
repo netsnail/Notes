@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-03-27T17:52:16+08:00
+
+====== mssql ======
+Created Monday 27 March 2017
+
+Use master
+GO
+
+CREATE DATABASE XXX
+ON
+(   NAME = XXX,
+	FILENAME = '/data/mssql-data/XXX.mdf',
+	SIZE = 10MB,
+	MAXSIZE = 500MB,
+	FILEGROWTH = 5MB
+	)
+LOG ON
+(   NAME = pbs_dmzx_new_log,
+	FILENAME = '/data/mssql-data/XXX.ldf',
+	SIZE = 5,
+	FILEGROWTH = 5)
+GO
+
+alter database XXX collate Chinese_PRC_CI_AS
+GO

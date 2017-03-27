@@ -1,0 +1,15 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-03-27T17:52:30+08:00
+
+====== freebsd ======
+Created Monday 27 March 2017
+
+#!/usr/bin/env bash
+sockstat -4 -p 10086 |grep 10086
+netstat -an |grep 1.245.22 |grep -v '     192.168'
+sockstat -4  |grep :22 |grep wcce |grep -v '     192.168'
+
+crontab: 
+	sockstat -4 -p 10086 |grep 10086 |awk '{print $3}' >/tmp/10086 || kill -9 $(cat /tmp/10086)
+
