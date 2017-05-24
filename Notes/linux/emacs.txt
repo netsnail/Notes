@@ -1,0 +1,46 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-05-24T15:08:30+08:00
+
+====== emacs ======
+Created Wednesday 24 May 2017
+
+				 EMACS 快捷键
+
+M-Q	合并多行                    			    
+M-^	合并到上一行
+M-\	删除周围空格
+C-o	在上面插入空行
+TAB	格式化
+C-w	剪切
+M-w	复制
+C-@	打标记
+M-u	大写
+M-l	小写
+M-c	首字母大写
+C-k	删除到行尾
+M-k	删除到句尾
+C-v	向下翻页
+M-v	向上翻页
+M-<	缓冲区首
+M->	缓冲区尾
+C-s	向下查找
+C-r	向前查找
+M-%	查找替换
+M-n	重复执行n次命令
+M-g g	到第几行                                         
+
+C-x TAB 每行增加空格
+
+C-x r t	插入string
+C-x r d 删除
+C-x r c 清除
+C-x r o 开辟空间
+C-h k	查询快捷键
+C-h f	查询方法
+C-h l	显示最后１００个内容
+
+M-1 M-!	执行命令插入结果
+C-x r C-h                  
+
+

@@ -1,0 +1,101 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-05-24T15:09:09+08:00
+
+====== solrcloud ======
+Created Wednesday 24 May 2017
+
+						  系统SolrCloud
+			   (http://wiki.apache.org/solr/SolrCloud)
+1. 安装
+   1.1. zookeeper
+   	   。要安装到不同的机器上，部署3个结点(可接受一台机器宕机)
+	   。zk为实时服务，建议安装到独立的机器
+	   。存储solr集群信息，leader，配置等
+	   。集群配置
+	   。启动zk
+			zkServer.sh start
+	   。上传solr配置
+			zkcli.sh -cmd bootstrap -zkhost zk1:2181 -solrhome multicore
+	   。
+
+   1.2. solrs
+   		。使用版本4.4.1
+		。使用jetty做为web容器
+		。二个实例，一个leader一个replica，部署到不同的机器
+		。启动solr
+			java -Djetty.port=8080 -DzkHost=zk1:2181,zk2:2181,zk3:2181 
+					 -Dsolr.solr.home=multicore -DnumShards=2 -jar start.jar
+		。
+	      	   
+   
+2. 配置
+   2.1. 初始化数据
+   		。增加导入配置solrconfig.xml
+			<requestHandler name="/dataimport" 
+			  class="org.apache.solr.handler.dataimport.DataImportHandler">
+				<lst name="defaults">
+					  <str name="config">
+					  /opt/solr-4.4.1/solr/multicore/core0/conf/db-data-config.xml
+					  </str>
+				</lst>
+			</requestHandler>
+		。数据配置/opt/solr-4.4.1/solr/multicore/core0/conf/db-data-config.xml
+			 <dataConfig>
+				 <dataSource type="JdbcDataSource" 
+				 	 driver="oracle.jdbc.driver.OracleDriver"
+					 url="jdbc:oracle:thin:@192.168.40.250:1521:baosong" 
+					 user="sitemanager" password="pico3929988"/>
+				 <document>
+					 <entity name="winfo" query="
+			 			  select
+			 			  id,
+			 			  winfoid,
+			 			  neirong,
+			 			  biaoti,
+			 			  siteurl,
+			 			  xinxileixing,
+			 			  huodongxingshi,
+			 			  wulidiyu,
+			 			  kword,
+			 			  kwordsyi,
+			 			  sdanwei,
+			 			  stime,
+			 			  caiyong,
+			 			  shifouziyi,
+			 			  susr,
+			 			  sflag,
+			 			  rflag,
+			 			  rdanwei,
+			 			  yuanbiaoti,
+			 			  sitename,
+			 			  pishi,
+			 			  ischongfu,
+			 			  caiyongUser,
+			 			  caiyongTime,
+			 			  0,
+			 			  0
+			 			  from winfo
+					 " transformer="ClobTransformer">
+					   <field column="NEIRONG" clob="true" />
+					 </entity>
+				 </document>
+			 </dataConfig>
+		。执行导入
+			curl http://172.16.3.170:8080/solr/db/dataimport?command=full-import
+
+3. 日常维护
+   3.1.	配置更新
+   		。修改本地的配置，然后上传
+   		。zkcli.sh -cmd upconfig -zkhost zk1:9983 -confdir multicore/core0/conf 
+				   -confname core0 -solrhome multicore
+   		。逐个重启solr
+
+   3.2.	增加core
+   		。通过管理url命令
+			curl 'http://localhost:8080/solr/admin/cores?action=CREATE&name=core1
+			&collection=multicore&shard=shard1'
+		。或者手动创建(copy)，上传配置
+			> cp -Rv core1 core2
+			> 修改core2配置
+			> 上传到zk(参考3.1)

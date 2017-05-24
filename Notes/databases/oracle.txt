@@ -12,3 +12,115 @@ CREATE TABLESPACE ECIQ_DATA LOGGING DATAFILE '/u01/app/oracle/oradata/XE/ECIQ_DA
 CREATE USER ECIQ IDENTIFIED BY ECIQ DEFAULT TABLESPACE ECIQ_DATA TEMPORARY TABLESPACE ECIQ_TEMP;
 
 GRANT CONNECT,RESOURCE TO ECIQ;
+
+archive log list;--查看数据库归档信息 
+alter system archive log start;--启动自动存档  
+alter system switch logfile;--强行进行一次日志switch  
+alter system checkpoint;--强制进行一次checkpoint  
+alter tablspace users begin backup;  
+alter tablespace tablespace_name offline; 
+
+$ ps –ef|grep ora  $ lsnrctl status 
+SQL> select status from v$instance;
+Select count(*) from v$session; ――查看当前会话连接数
+
+
+select avg(nvl(xx, 0)) from dual group by 
+nvl 函数强制对null数据进行group
+
+sqlplus 使用
+c /where/xxxx
+input xxxx
+l
+l2
+del 3
+a s
+run
+/
+
+having 进行子查询
+
+group by stor_id
+having min(pty) > (select min(pty) from sales where
+
+-------------------------------
+in/any/all
+in	equal to any member in the list 
+any 	compare value to each value returned by
+	the subquery
+all 	compare value to every value returned by
+	the subquery
+
+any/all 用于> <等
+
+http://127.0.0.1/isqlplus
+sql中变量的使用，批代一个数值或表达式
+define job_title = title
+变量的变量
+
+alter table stores
+add constraint pk_1 primary key(store_id);
+
+insert into (
+	   select x,x,x,,x,xxxx from aaa
+	   where id=50 
+) values (4,3,4,3,24,23,4,324,2,3);
+
+
+with check option 的使用
+DEFAULT 关键词的使用
+
+MERGE 关键词的使用
+
+alter table 
+set unused columns aaa
+
+drop unused columns;
+
+rename xx to bb
+
+truncate table xxx;
+	 remove all rows from a table
+	 release the storage space used by that table
+
+----Constraints
+alter table table2
+add constraint xxx foreign key (xx) references test2(id)
+
+drop constraint xxx;
+
+view
+select constraint_name, constraint_type, search_condition from user_constraint;
+l
+a s;
+run
+
+同义词的概念及使用
+create public synonym xx form aaaaaaaa;
+
+for short name
+show other person
+
+drop synonym t1;
+
+Control user access
+
+Database Links
+Use set oprations
+
+高级子查询--------------------------------
+WITH的使用
+
+CONNECT WITH PORI BY
+
+INSERT ALL
+INSERT FIRST
+PIVOTING INSERT 
+CONDITION INSERT ALL
+
+
+alter table xxxx drop partition aaa update indexes;
+
+
+
+
