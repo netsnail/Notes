@@ -74,6 +74,7 @@ local_root=/home/vsftpd/ftp3
 [root@localhost ~]# vi /etc/vsftpd/user_config/xftpuser
 #加入以下内容 只读权限
 local_root=/home/vsftpd/ftp1
+anon_max_rate=100000 
 
 ==== vsftpd-anon.conf ====
 #
