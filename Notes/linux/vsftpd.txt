@@ -49,4 +49,23 @@ guest_username=vsftpd
 virtual_use_local_privs=YES
 pam_service_name=vsftpd
 
+==== vsftpd-anon.conf ====
+#
+# Sample anonymous FTP server configuration
+#
+# Mandatory directives
+#
+listen=YES
+local_enable=NO
+anonymous_enable=YES
+write_enable=NO
+anon_root=/var/ftp
+#
+# Optional directives
+#
+anon_max_rate=2048000
+xferlog_enable=YES
+listen_address=192.168.0.100
+listen_port=21
+
 
