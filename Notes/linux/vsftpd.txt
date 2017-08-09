@@ -31,6 +31,11 @@ auth       optional     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=f
 account    required     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
 
 ==== /etc/vsftpd/vsftpd_login.db ====
+#vusers.list
+user1
+user1pwd
+user2
+user2pwd
 # db_load -T -t hash -f vusers.list /etc/vsftpd/vsftpd_login.db
 # chmod 600 /etc/vsftpd/vsftpd_login.db
 # /etc/pam.d/vsftpd
