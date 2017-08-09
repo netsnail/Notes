@@ -15,6 +15,13 @@ Created Wednesday 09 August 2017
 	path = [[/tmp]]
 	public = yes
 	writeable = yes
+
+[tmp]
+	path = [[/home/user]]
+	writeable = yes
+	valid users = nobody
+	
+# smbpasswd -a nobody
 	
 
 
