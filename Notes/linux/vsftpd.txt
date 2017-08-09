@@ -59,6 +59,21 @@ guest_enable=YES
 guest_username=vsftpd
 virtual_use_local_privs=YES
 pam_service_name=vsftpd
+user_config_dir=/etc/vsftpd_user_conf
+
+==== /etc/vsftpd_user_conf ====
+[root@localhost ~]# vi /etc/vsftpd/user_config/xftpadmin
+#加入以下内容 拥有所有权限
+write_enable=YES
+anon_world_readable_only=NO
+anon_upload_enable=YES
+anon_mkdir_write_enable=YES
+anon_other_write_enable=YES
+local_root=/home/vsftpd/ftp3
+
+[root@localhost ~]# vi /etc/vsftpd/user_config/xftpuser
+#加入以下内容 只读权限
+local_root=/home/vsftpd/ftp1
 
 ==== vsftpd-anon.conf ====
 #
