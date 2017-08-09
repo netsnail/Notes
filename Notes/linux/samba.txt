@@ -1,0 +1,19 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-08-09T10:17:00+08:00
+
+====== samba ======
+Created Wednesday 09 August 2017
+
+[global]
+	workground = WORKGROUP
+	security = user
+	map to guest = bad user
+	
+[public]
+	path = [[/tmp]]
+	public = yes
+	writeable = yes
+	
+
+
