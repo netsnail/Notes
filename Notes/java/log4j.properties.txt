@@ -1,0 +1,69 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-08-09T10:51:45+08:00
+
+====== log4j.properties ======
+Created Wednesday 09 August 2017
+
+log4j.rootLogger=info, stdout, R, err, mail
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d{ABSOLUTE}%5p %c:%L - %m%n
+
+log4j.logger.com.security=ERROR
+log4j.logger.org.springframework.aop.framework.Cglib2AopProxy=ERROR
+log4j.logger.org.hibernate.cache.EhCacheProvider=ERROR
+log4j.logger.org.hibernate.hql.internal.ast.HqlSqlWalker=ERROR
+log4j.logger.org.hibernate.engine.internal.StatefulPersistenceContext=ERROR
+log4j.logger.com.core=info
+log4j.logger.org.apache.struts2.convention=info
+log4j.logger.com.opensymphony.xwork2.interceptor=info
+log4j.logger.org.springframework.orm.hibernate3.support.OpenSessionInViewFilter=info
+log4j.logger.cn.test.task.impl.TestService=debug,zj
+log4j.logger.cn.test.ws=debug,ws
+
+# zongju oracle log
+log4j.appender.zj=org.apache.log4j.RollingFileAppender
+log4j.appender.zj.File=/data/logs/test/zongju.log
+log4j.appender.zj.MaxFileSize=10MB
+log4j.appender.zj.MaxBackupIndex=9
+log4j.appender.zj.layout=org.apache.log4j.PatternLayout
+log4j.appender.zj.layout.ConversionPattern=%d %5p %c:%L - %m%n
+
+# webservice log
+log4j.appender.ws=org.apache.log4j.RollingFileAppender
+log4j.appender.ws.File=/data/logs/test/ws.log
+log4j.appender.ws.MaxFileSize=10MB
+log4j.appender.ws.MaxBackupIndex=9
+log4j.appender.ws.layout=org.apache.log4j.PatternLayout
+log4j.appender.ws.layout.ConversionPattern=%d %5p %c:%L - %m%n
+
+
+# err file
+log4j.appender.err.Threshold=error
+log4j.appender.err=org.apache.log4j.RollingFileAppender
+log4j.appender.err.File=/data/logs/test/log.err
+log4j.appender.err.MaxFileSize=10MB
+log4j.appender.err.MaxBackupIndex=9
+log4j.appender.err.layout=org.apache.log4j.PatternLayout
+log4j.appender.err.layout.ConversionPattern=%d %5p %c:%L - %m%n
+
+log4j.appender.R=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.R.file=/data/logs/test/log.info
+log4j.appender.R.DatePattern='.'yyyy-MM-dd
+log4j.appender.R.Append=true
+log4j.appender.R.layout=org.apache.log4j.PatternLayout
+log4j.appender.R.layout.ConversionPattern=%d %p [%c\:%L] - %m%n
+
+log4j.appender.mail.Threshold=error
+log4j.appender.mail=org.apache.log4j.net.SMTPAppender
+log4j.appender.mail.BufferSize=512
+log4j.appender.mail.SMTPHost=mail.test.cn
+log4j.appender.mail.Timeout=5000
+log4j.appender.mail.Subject=test online
+log4j.appender.mail.SMTPUsername=findbugs@test.cn
+log4j.appender.mail.SMTPPassword=wwmxd
+log4j.appender.mail.From=findbugs@test.cn
+log4j.appender.mail.To=admin@test.cn
+log4j.appender.mail.layout=org.apache.log4j.PatternLayout
+log4j.appender.mail.layout.ConversionPattern=%d %5p %c:%L - %m%n
