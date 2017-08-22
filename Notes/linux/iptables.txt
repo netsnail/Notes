@@ -2,7 +2,7 @@ Content-Type: text/x-zim-wiki
 Wiki-Format: zim 0.4
 Creation-Date: 2012-06-06T17:21:17+08:00
 
-====== iptables ======
+====== liptables ======
 Created Wednesday 06 June 2012
 
 ===== iptables.conf =====

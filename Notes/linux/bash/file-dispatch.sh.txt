@@ -1,0 +1,50 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-08-22T20:07:29+08:00
+
+====== file-dispatch.sh ======
+Created Tuesday 22 August 2017
+
+#!/bin/sh
+exec 1>>/data/logs/file-dispatch.log 2>&1
+
+_srcdir=/data/test
+_backupdir=/data/test-backup
+_rsync_head=/data/bin/rsync-
+_ips=(192.168.1.2 192.168.1.3 192.168.1.4)
+_count=10
+
+for ip in ${_ips[@]}; do
+  test -e $_rsync_head$ip || ln -sf [[/usr/bin/rsync]] $_rsync_head$ip
+done
+
+find [[/data/test]] -mtime 2 -exec rmdir -p {} + >/dev/null 2>&1
+
+cd $_srcdir
+while true; do
+  ip=${_ips[$((RANDOM%${#_ips[@]}))]}
+  sendingdir=$_backupdir/__sending_$ip
+  num=$(find $sendingdir -type f |wc -l)
+  myrsync=$_rsync_head$ip
+
+  ps -ef |grep "$myrsync" >/dev/null |grep -v grep && {
+	echo "warning: $myrsync is running..."
+  } || {
+	test $num -lt $_count && {
+	  for f in $(find . -iname '*.zip' |head -$_count); do
+		d=$(dirname $f)
+		mkdir -p $sendingdir/$d && mv -f $f $sendingdir/$d
+	  done
+  }
+  num=$(find $sendingdir -type f |wc -l)
+	test $num -gt 0 && {
+	big=$(du -sh $sendingdir |cut -f1)
+   echo -e "$ip\t$num\t$big\t$(date +'%F %X')"
+
+	 bakdir=$_backupdir/$(date +'%Y%m%d')_$ip/$(date +'%H%M%S%N')
+	 mkdir -p $bakdir
+	 echo -n $($myrsync -rl $sendingdir/* $ip::data && mv -f $sendingdir/* $bakdir) &
+	} || break
+   }
+   sleep 2
+done
