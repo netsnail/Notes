@@ -5,6 +5,9 @@ Creation-Date: 2012-06-06T17:03:13+08:00
 ====== bash ======
 Created Wednesday 06 June 2012
 
+tar cf - . | tee >(ssh localhost 'cat > test1.tar') >(ssh localhost 'cat > test2.tar') >/dev/null
+
+
 ===== .bashrc =====
 export QEMU_AUDIO_DRV=alsa
 
