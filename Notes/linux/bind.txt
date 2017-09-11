@@ -1,0 +1,71 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-09-11T15:03:12+08:00
+
+====== bind ======
+Created Monday 11 September 2017
+
+	   recursion yes;   //这个选项控制是否开启服务器的递归查询功能
+
+ 
+
+	   dnssec-enable no;   //这部分是设置DNSSEC的。把它关掉，默认为yes。
+
+	   dnssec-validation no;    //关掉，默认为yes。
+
+
+
+zone "test.com.cn" IN {
+
+	   type master;  //指明本服务器是这个域的主DNS服务器
+
+	   file "test.com.cn.zone"; //该域的配置文件的名字，放在/var/named/test.com.cn.zone
+
+	   allow-transfer {192.168.203.140;}; //指定从DNS服务器的ip地址
+
+	   allow-query {any;};//允许任意IP地址来请求解析
+
+};
+
+zone "test.com.cn" IN {
+
+	   type slave;  //指明本服务器是这个域的主DNS服务器
+
+	   file "slaves/test.com.cn.zone"; //该域的配置文件的名字，放在/var/named/slaves/test.com.cn.zone
+
+	   masters {192.168.203.139;}; //指定主DNS服务器的ip地址
+
+	   allow-query {any;};//允许任意IP地址来请求解析
+
+};
+
+
+$ORIGIN .
+
+$TTL 86400      ; 1 day
+
+test.com.cn      IN SOA test.com.cn. aaaaa.163.com. (
+
+								201701237  ; serial   //serial号，用于主从服务器更新，当主服务器的serial大于从服务器的serial时，从服务器会更新zone文件
+
+								10         ; refresh (10 seconds)//设置的更新周期，这里设置为10秒作为测试用
+
+								900        ; retry (15 minutes)//更新失败时重试的周期900秒
+
+								604800     ; expire (1 week)
+
+								86400      ; minimum (1 day)
+
+	  )
+
+		   NS      dns.test.com.cn.
+
+$ORIGIN test.com.cn.
+
+$TTL 3600       ; 1 hour
+
+aaa                     A       192.168.203.134
+
+bbb                     A       192.168.203.134
+
+dns                     A       192.168.203.139
