@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>nginx</title>
+</head><body><br/>
+<span style="font-size: 13pt">Most setup guides for Nginx tell you the basics - apt-get a package, modify a few lines here and there, and you’ve got a web server! And, in most cases, a vanilla nginx install will work just fine for serving your website. However, if you’re REALLY trying to squeeze performance out of nginx, you’ll have to go a few steps further. In this guide, I’ll explain which settings in nginx can be fine tuned in order to optimize performance for handling a large number of clients. As a note, this isn’t a comprehensive guide for fine-tuning. It’s a breif overview of some settings that can be tuned in order to improve performance. Your mileage may vary.<br/>
+</span>Basic (Optimized) Configuration<br/>
+<span style="font-size: 13pt">The only file we’ll be modifying is your <b>nginx.conf</b>, which holds all your settings for nginx in different modules. You should be able to find nginx.conf in the<b>/etc/nginx</b> directory on your server. First, we’ll talk about some of the global settings, then go through each module in the file and talk about which settings will get you the best performance for a large number of clients, and why they’ll increase your performance. A completed config file can be found at the end of this post.<br/>
+</span>译者信息<br/>
+<span style="font-size: 13pt">大多数的Nginx安装指南告诉你例如以下基础知识——通过apt-get安装，改动这里或那里的几行配置。好了，你已经有了一个Webserver了！并且。在大多数情况下，一个常规安装的nginx对你的站点来说已经能非常好地工作了。然而，假设你真的想挤压出nginx的性能，你必须更深入一些。<br/>
+</span><br/>
+<span style="font-size: 13pt">在本指南中，我将解释Nginx的那些设置能够微调，以优化处理大量client时的性能。须要注意一点，这不是一个全面的微调指南。这是一个简单的预览——那些能够通过微调来提高性能设置的概述。你的情况可能不同。<br/>
+</span>主要的 (优化过的)配置<br/>
+<span style="font-size: 13pt">我们将改动的唯一文件是<b>nginx.conf</b>，当中包括Nginx不同模块的全部设置。你应该可以在server的<b>/etc/nginx</b>文件夹中找到nginx.conf。首先。我们将谈论一些全局设置。然后按文件里的模块挨个来，谈一下哪些设置可以让你在大量client訪问时拥有良好的性能，为什么它们会提高性能。本文的结尾有一个完整的配置文件。<br/>
+</span><br/>
+<span style="font-size: 13pt"><br/>
+</span>Top Level Configs<br/>
+<span style="font-size: 13pt">Nginx has a few top level configuration settings that sit outside the modules in your nginx.conf file.<br/>
+</span><span style="font-size: 12pt"><span style="font-family: Consolas">1user www-data;</span></span></body></html>

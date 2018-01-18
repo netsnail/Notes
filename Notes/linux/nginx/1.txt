@@ -1,0 +1,426 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-09-11T23:30:34+08:00
+
+====== 1 ======
+Created Monday 11 September 2017
+
+Most setup guides for Nginx tell you the basics - apt-get a package, modify a few lines here and there, and you’ve got a web server! And, in most cases, a vanilla nginx install will work just fine for serving your website. However, if you’re REALLY trying to squeeze performance out of nginx, you’ll have to go a few steps further. In this guide, I’ll explain which settings in nginx can be fine tuned in order to optimize performance for handling a large number of clients. As a note, this isn’t a comprehensive guide for fine-tuning. It’s a breif overview of some settings that can be tuned in order to improve performance. Your mileage may vary.
+
+Basic (Optimized) Configuration
+The only file we’ll be modifying is your nginx.conf, which holds all your settings for nginx in different modules. You should be able to find nginx.conf in the/etc/nginx directory on your server. First, we’ll talk about some of the global settings, then go through each module in the file and talk about which settings will get you the best performance for a large number of clients, and why they’ll increase your performance. A completed config file can be found at the end of this post.
+
+译者信息
+大多数的Nginx安装指南告诉你例如以下基础知识——通过apt-get安装，改动这里或那里的几行配置。好了，你已经有了一个Webserver了！并且。在大多数情况下，一个常规安装的nginx对你的站点来说已经能非常好地工作了。然而，假设你真的想挤压出nginx的性能，你必须更深入一些。
+
+在本指南中，我将解释Nginx的那些设置能够微调，以优化处理大量client时的性能。须要注意一点，这不是一个全面的微调指南。这是一个简单的预览——那些能够通过微调来提高性能设置的概述。你的情况可能不同。
+
+主要的 (优化过的)配置
+我们将改动的唯一文件是nginx.conf，当中包括Nginx不同模块的全部设置。你应该可以在server的/etc/nginx文件夹中找到nginx.conf。首先。我们将谈论一些全局设置。然后按文件里的模块挨个来，谈一下哪些设置可以让你在大量client訪问时拥有良好的性能，为什么它们会提高性能。本文的结尾有一个完整的配置文件。
+
+Top Level Configs
+Nginx has a few top level configuration settings that sit outside the modules in your nginx.conf file.
+
+1	user www-data;
+2	pid /var/run/nginx.pid;
+3	 
+4	worker_processes auto;
+5	 
+6	worker_rlimit_nofile 100000;
+user and pid should be set by default - we won’t modify this, since it won’t do anything for us
+
+worker_processes defines the number of worker processes that nginx should use when serving your website. The optimal value depends on many factors including (but not limited to) the number of CPU cores, the number of hard drives that store data, and load pattern. When in doubt, setting it to the number of available CPU cores would be a good start (the value “auto” will try to autodetect it).
+
+worker_rlimit_nofile changes the limit on the maximum number of open files for worker processes. If this isn’t set, your OS will limit. Chances are your OS and nginx can handle more than “ulimit -a” will report, so we’ll set this high so nginx will never have an issue with “too many open files”
+
+译者信息
+高层的配置
+nginx.conf文件里，Nginx中有少数的几个高级配置在模块部分之上。
+
+1	user www-data;
+2	pid /var/run/nginx.pid;
+3	 
+4	worker_processes auto;
+5	 
+6	worker_rlimit_nofile 100000;
+user和pid应该按默认设置 - 我们不会更改这些内容，由于更改与否没有什么不同。
+
+worker_processes 定义了nginx对外提供web服务时的worder进程数。最优值取决于很多因素。包含（但不限于）CPU核的数量、存储数据的硬盘数量及负载模式。
+
+不能确定的时候，将其设置为可用的CPU内核数将是一个好的開始（设置为“auto”将尝试自己主动检測它）。
+
+worker_rlimit_nofile 更改worker进程的最大打开文件数限制。假设没设置的话。这个值为操作系统的限制。设置后你的操作系统和Nginx能够处理比“ulimit -a”很多其它的文件。所以把这个值设高，这样nginx就不会有“too many open files”问题了。
+
+Events Module
+The events module contains all the settings for processing connections in nginx.
+
+1	events {
+2	    worker_connections 2048;
+3	    multi_accept on;
+4	    use epoll;
+5	}
+worker_connections sets the maximum number of simultaneous connections that can be opened by a worker process. Since we bumped up worker_rlimit_nofile, we can safely set this pretty high.
+
+Keep in mind that the maximum number of clients is also limited by the number of socket connections available on your sytem (~64k), so setting this ridiculously high won’t benefit us.
+
+multi_accept tells nginx to accept as many connections as possible after getting a notification about a new connection
+
+use sets which polling method we should use for multiplexing clients on to threads. If you’re using Linux 2.6+, you should use epoll. If you’re using *BSD, you should use kqueue. Wanna know more about event polling?Let Wikipedia be your guide (warning, a neckbeard and an operating systems course might be needed to understand everything)
+
+(it’s worth noting if you don’t which polling method nginx should use, it’ll chose the best one for your OS)
+
+译者信息
+Events模块
+events模块中包括nginx中全部处理连接的设置。
+
+1	events {
+2	    worker_connections 2048;
+3	    multi_accept on;
+4	    use epoll;
+5	}
+worker_connections设置可由一个worker进程同一时候打开的最大连接数。
+
+假设设置了上面提到的worker_rlimit_nofile，我们能够将这个值设得非常高。
+
+记住，最大客户数也由系统的可用socket连接数限制（~ 64K），所以设置不切实际的高没什么优点。
+
+multi_accept 告诉nginx收到一个新连接通知后接受尽可能多的连接。
+
+use 设置用于复用client线程的轮询方法。假设你使用Linux 2.6+。你应该使用epoll。假设你使用*BSD。你应该使用kqueue。想知道很多其它有关事件轮询？看下维基百科吧（注意。想了解一切的话可能须要neckbeard和操作系统的课程基础）
+
+（值得注意的是假设你不知道Nginx该使用哪种轮询方法的话，它会选择一个最适合你操作系统的）
+
+HTTP Module
+The HTTP module controls all the core features of nginx’s http processing. Since there are quite a few settings in here, we’ll take this one in pieces. All these settings should be in the http module, even though it won’t be specifically noted as such in the snippets.
+
+01	http {
+02	 
+03	    server_tokens off;
+04	 
+05	    sendfile on;
+06	 
+07	    tcp_nopush on;
+08	    tcp_nodelay on;
+09	 
+10	    ...
+11	}
+server_tokens doesn’t speed up our performance any, but it turns off nginx version numbers on error pages, which is a good idea for security.
+
+sendfile enables the use of sendfile(). sendfile() copies data between the disk and a TCP socket (or any two file descriptors). Pre-sendfile, to transfer such data we would alloc a data buffer in the user space. We would then read() to copy the data from a file in to the buffer, and write() the content of the buffer to a network. sendfile() reads the data immediately from the disk into the OS cache. Because this copying is done within the kernel, sendfile() is more efficient than the combination of read() and write() and the context switching/cache trashing that comes along with it (read more about sendfile)
+
+译者信息
+HTTP 模块
+HTTP模块控制着nginx http处理的全部核心特性。
+
+由于这里仅仅有非常少的配置。所以我们仅仅节选配置的一小部分。全部这些设置都应该在http模块中。甚至你不会特别的注意到这段设置。
+
+01	http {
+02	 
+03	    server_tokens off;
+04	 
+05	    sendfile on;
+06	 
+07	    tcp_nopush on;
+08	    tcp_nodelay on;
+09	 
+10	    ...
+11	}server_tokens 并不会让nginx运行的速度更快。但它能够关闭在错误页面中的nginx版本号数字，这样对于安全性是有优点的。
+sendfile能够让sendfile()发挥作用。
+
+sendfile()能够在磁盘和TCP socket之间互相拷贝数据(或随意两个文件描写叙述符)。Pre-sendfile是传送数据之前在用户空间申请数据缓冲区。之后用read()将数据从文件复制到这个缓冲区，write()将缓冲区数据写入网络。
+
+sendfile()是马上将数据从磁盘读到OS缓存。
+
+由于这样的拷贝是在内核完毕的。sendfile()要比组合read()和write()以及打开关闭丢弃缓冲更加有效(很多其它有关于sendfile)
+
+tcp_nopush tells nginx to send all header files in one packet as opposed to one by one
+
+tcp_nodelay tells nginx not to buffer data and send data in small, short bursts - it should only be set for applications that send frequent small bursts of information without getting an immediate response, where timely delivery of data is required
+
+1	access_log off;
+2	error_log /var/log/nginx/error.log crit;
+access_log sets whether or not nginx will store access logs. Turning this off increases speed by reducing disk IO (aka, YOLO)
+
+error_log tells nginx it should only log critical errors
+
+1	keepalive_timeout 10;
+2	 
+3	client_header_timeout 10;
+4	client_body_timeout 10;
+5	 
+6	reset_timedout_connection on;
+7	send_timeout 10;
+keepalive_timeout assigns the timeout for keep-alive connections with the client. The server will close connections after this time. We’ll set it low to keep our workers from being busy for too long.
+
+client_header_timeout and client_body_timeout sets the timeout for the request header and request body (respectively). We’ll set this low too.
+
+译者信息
+tcp_nopush 告诉nginx在一个数据包里发送全部头文件，而不一个接一个的发送
+
+tcp_nodelay 告诉nginx不要缓存数据，而是一段一段的发送--当须要及时发送数据时。就应该给应用设置这个属性。这样发送一小块数据信息时就不能马上得到返回值。
+
+1	access_log off;
+2	error_log /var/log/nginx/error.log crit;access_log设置nginx是否将存储訪问日志。关闭这个选项能够让读取磁盘IO操作更快(aka,YOLO)
+error_log 告诉nginx仅仅能记录严重的错误
+
+1	keepalive_timeout 10;
+2	 
+3	client_header_timeout 10;
+4	client_body_timeout 10;
+5	 
+6	reset_timedout_connection on;
+7	send_timeout 10;keepalive_timeout 给client分配keep-alive链接超时时间。server将在这个超时时间过后关闭链接。
+我们将它设置低些能够让ngnix持续工作的时间更长。
+
+client_header_timeout 和client_body_timeout 设置请求头和请求体(各自)的超时时间。我们也能够把这个设置低些。
+
+reset_timedout_connection tells nginx to close connection on non responding client. This will free up all memory associated with that client.
+
+send_timeout specifies the response timeout to the client. This timeout does not apply to the entire transfer, but between two subsequent client-read operations. If the client has not read any data for this amount of time, then nginx shuts down the connection.
+
+1	limit_conn_zone $binary_remote_addr zone=addr:5m;
+2	limit_conn addr 100;
+limit_conn_zone sets parameters for a shared memory zone that will keep states for various keys (such as current number of connections). 5m is 5 megabytes, and should be large enough to store (32k * 5) 32-byte states or (16k * 5) 64-byte states.
+
+limit_conn sets the maximum allowed number of connections for a given key value. The key is addr, and our value is 100, so we’ll only allow 100 concurrent connections per IP address.
+
+1	include /etc/nginx/mime.types;
+2	default_type text/html;
+3	charset UTF-8;
+include is just a directive to include the contents of another file in the current file. Here, we use it to load in a list of MIME types to be used later.
+
+default_type sets the default MIME-type to be used for files
+
+charset sets the default charset to be included in our header
+
+译者信息
+reset_timeout_connection告诉nginx关闭不响应的client连接。这将会释放那个client所占有的内存空间。
+
+send_timeout 指定client的响应超时时间。这个设置不会用于整个转发器，而是在两次client读取操作之间。假设在这段时间内，client没有读取不论什么数据，nginx就会关闭连接。
+
+1	limit_conn_zone $binary_remote_addr zone=addr:5m;
+2	limit_conn addr 100; limit_conn_zone设置用于保存各种key（比方当前连接数）的共享内存的參数。5m就是5兆字节。这个值应该被设置的足够大以存储（32K*5）32byte状态或者（16K*5）64byte状态。
+limit_conn为给定的key设置最大连接数。
+
+这里key是addr，我们设置的值是100。也就是说我们同意每个IP地址最多同一时候打开有100个连接。
+
+1	include /etc/nginx/mime.types;
+2	default_type text/html;
+3	charset UTF-8; include仅仅是一个在当前文件里包括还有一个文件内容的指令。这里我们使用它来载入稍后会用到的一系列的MIME类型。
+default_type设置文件使用的默认的MIME-type。
+
+charset设置我们的头文件里的默认的字符集
+
+The performance improvement these two options give is explained in this great WebMasters StackExchange question.
+
+1	gzip on;
+2	gzip_disable "msie6";
+3	 
+4	# gzip_static on;
+5	gzip_proxied any;
+6	gzip_min_length 1000;
+7	gzip_comp_level 4;
+8	 
+9	gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;gzip tells nginx to gzip the data we’re sending. This will reduce the amount of data we need to send.
+gzip_disable disables gzip for specific clients. We set it to be IE6 or less for compadibility issues.
+
+gzip_static tells nginx to look for the pre-gzip’d asset with the same name before gzipping the asset itself. This is requires you to pre-zip your files (it’s commented out for this example), but allows you to use the highest compression possible and nginx no longer has to zip those files (read more about gzip_statichere)
+
+gzip_proxied allows or disallows compression of a response based on the request/response. We’ll set it to any, so we gzip all requests.
+
+gzip_min_length sets the minimum number of bytes necessary for us to gzip data. If a request is under 1000 bytes, we won’t bother gzipping it, since gzipping does slow down the overall process of handling a request.
+
+gzip_comp_level sets the compression level on our data. These levesls can be anywhere from 1-9, 9 being the slowest but most compressed. We’ll set it to 4, which is a good middle ground.
+
+gzip_types sets the type of data to gzip. There are some above, but you can add more.
+
+01	# cache informations about file descriptors, frequently accessed files
+02	# can boost performance, but you need to test those values
+03	open_file_cache max=100000 inactive=20s; 
+04	open_file_cache_valid 30s; 
+05	open_file_cache_min_uses 2;
+06	open_file_cache_errors on;
+07	 
+08	##
+09	# Virtual Host Configs
+10	# aka our settings for specific servers
+11	##
+12	 
+13	include /etc/nginx/conf.d/*.conf;
+14	include /etc/nginx/sites-enabled/*;	译者信息
+下面两点对于性能的提升在伟大的WebMasters StackExchange中有解释。
+
+1	gzip on;
+2	gzip_disable "msie6";
+3	 
+4	# gzip_static on;
+5	gzip_proxied any;
+6	gzip_min_length 1000;
+7	gzip_comp_level 4;
+8	 
+9	gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+gzip是告诉nginx採用gzip压缩的形式发送数据。这将会降低我们发送的数据量。
+
+gzip_disable为指定的client禁用gzip功能。我们设置成IE6或者更低版本号以使我们的方案可以广泛兼容。
+
+gzip_static告诉nginx在压缩资源之前，先查找是否有预先gzip处理过的资源。这要求你预先压缩你的文件（在这个样例中被凝视掉了），从而同意你使用最高压缩比，这样nginx就不用再压缩这些文件了（想要更详尽的gzip_static的信息，请点击这里）。
+
+gzip_proxied同意或者禁止压缩基于请求和响应的响应流。
+
+我们设置为any，意味着将会压缩全部的请求。
+
+gzip_min_length设置对数据启用压缩的最少字节数。
+
+假设一个请求小于1000字节，我们最好不要压缩它。由于压缩这些小的数据会减少处理此请求的全部进程的速度。
+
+gzip_comp_level设置数据的压缩等级。这个等级能够是1-9之间的随意数值。9是最慢可是压缩比最大的。我们设置为4，这是一个比較折中的设置。
+
+gzip_type设置须要压缩的数据格式。上面样例中已经有一些了，你也能够再加入很多其它的格式。
+
+01	# cache informations about file descriptors, frequently accessed files
+02	# can boost performance, but you need to test those values
+03	open_file_cache max=100000 inactive=20s; 
+04	open_file_cache_valid 30s; 
+05	open_file_cache_min_uses 2;
+06	open_file_cache_errors on;
+07	 
+08	##
+09	# Virtual Host Configs
+10	# aka our settings for specific servers
+11	##
+12	 
+13	include /etc/nginx/conf.d/*.conf;
+14	include /etc/nginx/sites-enabled/*;
+open_file_cache both turns on cache activity and specifies the maximum number of entries in the cache, along with how long to cache them. We’ll set our maximum to a relatively high number, and we’ll get rid of them from the cache if they’re inactive for 20 seconds.
+open_file_cache_valid specifies interval for when to check the validity of the information about the item in open_file_cache
+
+open_file_cache_min_uses defines the minimum use number of a file within the time specified in the directive parameter inactive in open_file_cache
+
+open_file_cache_errors specifies whether or not to cache errors when searching for a file
+
+Include is again used to add some files to our config. We’re including our server modules, defined in a different file. If your server modules aren’t at these locations, you should modify this line to point at the correct location.
+
+译者信息
+open_file_cache打开缓存的同一时候也指定了缓存最大数目，以及缓存的时间。
+
+我们能够设置一个相对高的最大时间。这样我们能够在它们不活动超过20秒后清除掉。
+
+open_file_cache_valid 在open_file_cache中指定检測正确信息的间隔时间。
+
+open_file_cache_min_uses 定义了open_file_cache中指令參数不活动时间期间里最小的文件数。
+
+open_file_cache_errors指定了当搜索一个文件时是否缓存错误信息。也包含再次给配置中加入文件。我们也包含了server模块。这些是在不同文件里定义的。假设你的server模块不在这些位置，你就得改动这一行来指定正确的位置。
+
+The full config file
+01	user www-data;
+02	pid /var/run/nginx.pid;
+03	worker_processes auto;
+04	worker_rlimit_nofile 100000;
+05	 
+06	events {
+07	    worker_connections 2048;
+08	    multi_accept on;
+09	    use epoll;
+10	}
+11	 
+12	http {
+13	    server_tokens off;
+14	    sendfile on;
+15	    tcp_nopush on;
+16	    tcp_nodelay on;
+17	 
+18	    access_log off;
+19	    error_log /var/log/nginx/error.log crit;
+20	 
+21	    keepalive_timeout 10;
+22	    client_header_timeout 10;
+23	    client_body_timeout 10;
+24	    reset_timedout_connection on;
+25	    send_timeout 10;
+26	 
+27	    limit_conn_zone $binary_remote_addr zone=addr:5m;
+28	    limit_conn addr 100;
+29	 
+30	    include /etc/nginx/mime.types;
+31	    default_type text/html;
+32	    charset UTF-8;
+33	 
+34	    gzipon;
+35	    gzip_disable"msie6";
+36	    gzip_proxied any;
+37	    gzip_min_length 1000;
+38	    gzip_comp_level 6;
+39	    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+40	 
+41	    open_file_cache max=100000 inactive=20s;
+42	    open_file_cache_valid 30s;
+43	    open_file_cache_min_uses 2;
+44	    open_file_cache_errors on;
+45	 
+46	    include /etc/nginx/conf.d/*.conf;
+47	    include /etc/nginx/sites-enabled/*;
+48	} After editing your config, make sure to restart nginx in order to have it use our new configuration file
+sudo service nginx restart
+
+Takeaway
+There we go! Your web server is now ready to do battle with the army of visitors that previously plagued you. This is by no means the only way you can go about speeding up your website. I’ll be writing more posts that explain other ways to speed up your website soon.
+
+译者信息
+一个完整的配置
+01	user www-data;
+02	pid /var/run/nginx.pid;
+03	worker_processes auto;
+04	worker_rlimit_nofile 100000;
+05	 
+06	events {
+07	    worker_connections 2048;
+08	    multi_accept on;
+09	    use epoll;
+10	}
+11	 
+12	http {
+13	    server_tokens off;
+14	    sendfile on;
+15	    tcp_nopush on;
+16	    tcp_nodelay on;
+17	 
+18	    access_log off;
+19	    error_log /var/log/nginx/error.log crit;
+20	 
+21	    keepalive_timeout 10;
+22	    client_header_timeout 10;
+23	    client_body_timeout 10;
+24	    reset_timedout_connection on;
+25	    send_timeout 10;
+26	 
+27	    limit_conn_zone $binary_remote_addr zone=addr:5m;
+28	    limit_conn addr 100;
+29	 
+30	    include /etc/nginx/mime.types;
+31	    default_type text/html;
+32	    charset UTF-8;
+33	 
+34	    gzipon;
+35	    gzip_disable"msie6";
+36	    gzip_proxied any;
+37	    gzip_min_length 1000;
+38	    gzip_comp_level 6;
+39	    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+40	 
+41	    open_file_cache max=100000 inactive=20s;
+42	    open_file_cache_valid 30s;
+43	    open_file_cache_min_uses 2;
+44	    open_file_cache_errors on;
+45	 
+46	    include /etc/nginx/conf.d/*.conf;
+47	    include /etc/nginx/sites-enabled/*;
+48	}
+编辑完配置后，确认重新启动nginx使设置生效。
+
+sudo service nginx restart
+
+后记
+就这样！你的Webserver如今已经就绪。之前困扰你的众多訪问者的问题来吧。
+
+这并非加速站点的唯一途径，非常快我会写很多其它介绍其它加速站点方法的文章的。
+

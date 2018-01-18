@@ -1,0 +1,167 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-09-11T23:32:05+08:00
+
+====== 3 ======
+Created Monday 11 September 2017
+
+关于内核參数的优化：
+
+net.ipv4.tcp_max_tw_buckets = 6000
+
+timewait 的数量，默认是180000。
+
+net.ipv4.ip_local_port_range = 1024 65000
+
+同意系统打开的port范围。
+
+net.ipv4.tcp_tw_recycle = 1
+
+启用timewait 高速回收。
+
+net.ipv4.tcp_tw_reuse = 1
+
+开启重用。同意将TIME-WAIT sockets 又一次用于新的TCP 连接。
+
+net.ipv4.tcp_syncookies = 1
+
+开启SYN Cookies。当出现SYN 等待队列溢出时，启用cookies 来处理。
+
+net.core.somaxconn = 262144
+
+web 应用中listen 函数的backlog 默认会给我们内核參数的net.core.somaxconn 限制到128，而nginx 定义的NGX_LISTEN_BACKLOG 默觉得511，所以有必要调整这个值。
+
+net.core.netdev_max_backlog = 262144
+
+每一个网络接口接收数据包的速率比内核处理这些包的速率快时，同意送到队列的数据包的最大数目。
+
+net.ipv4.tcp_max_orphans = 262144
+
+系统中最多有多少个TCP 套接字不被关联到不论什么一个用户文件句柄上。假设超过这个数字。孤儿连接将即刻被复位并打印出警告信息。这个限制不过为了防止简单的DoS 攻击。不能过分依靠它或者人为地减小这个值。更应该添加这个值(假设添加了内存之后)。
+
+net.ipv4.tcp_max_syn_backlog = 262144
+
+记录的那些尚未收到client确认信息的连接请求的最大值。
+
+对于有128M 内存的系统而言，缺省值是1024，小内存的系统则是128。
+
+net.ipv4.tcp_timestamps = 0
+
+时间戳可以避免序列号的卷绕。一个1Gbps 的链路肯定会遇到曾经用过的序列号。时间戳可以让内核接受这样的“异常”的数据包。这里须要将其关掉。
+
+net.ipv4.tcp_synack_retries = 1
+
+为了打开对端的连接，内核须要发送一个SYN 并附带一个回应前面一个SYN 的ACK。
+
+也就是所谓三次握手中的第二次握手。
+
+这个设置决定了内核放弃连接之前发送SYN+ACK 包的数量。
+
+net.ipv4.tcp_syn_retries = 1
+
+在内核放弃建立连接之前发送SYN 包的数量。
+
+net.ipv4.tcp_fin_timeout = 1
+
+假设套接字由本端要求关闭，这个參数决定了它保持在FIN-WAIT-2 状态的时间。
+
+对端能够出错并永远不关闭连接。甚至意外当机。
+
+缺省值是60 秒。2.2 内核的通常值是180 秒。3你能够按这个设置，但要记住的是。即使你的机器是一个轻载的WEB server。也有由于大量的死套接字而内存溢出的风险，FIN- WAIT-2 的危急性比FIN-WAIT-1 要小。由于它最多仅仅能吃掉1.5K 内存，可是它们的生存期长些。
+
+net.ipv4.tcp_keepalive_time = 30
+
+当keepalive 起用的时候，TCP 发送keepalive 消息的频度。缺省是2 小时。
+
+ 
+
+以下贴一个完整的内核优化设置:
+
+vi /etc/sysctl.conf  CentOS5.5中能够将全部内容清空直接替换为例如以下内容:
+
+net.ipv4.ip_forward = 0
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.default.accept_source_route = 0
+kernel.sysrq = 0
+kernel.core_uses_pid = 1
+net.ipv4.tcp_syncookies = 1
+kernel.msgmnb = 65536
+kernel.msgmax = 65536
+kernel.shmmax = 68719476736
+kernel.shmall = 4294967296
+net.ipv4.tcp_max_tw_buckets = 6000
+net.ipv4.tcp_sack = 1
+net.ipv4.tcp_window_scaling = 1
+net.ipv4.tcp_rmem = 4096 87380 4194304
+net.ipv4.tcp_wmem = 4096 16384 4194304
+net.core.wmem_default = 8388608
+net.core.rmem_default = 8388608
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.core.netdev_max_backlog = 262144
+net.core.somaxconn = 262144
+net.ipv4.tcp_max_orphans = 3276800
+net.ipv4.tcp_max_syn_backlog = 262144
+net.ipv4.tcp_timestamps = 0
+net.ipv4.tcp_synack_retries = 1
+net.ipv4.tcp_syn_retries = 1
+net.ipv4.tcp_tw_recycle = 1
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_mem = 94500000 915000000 927000000
+net.ipv4.tcp_fin_timeout = 1
+net.ipv4.tcp_keepalive_time = 30
+net.ipv4.ip_local_port_range = 1024 65000
+
+使配置马上生效可使用例如以下命令：
+/sbin/sysctl -p
+
+关于系统连接数的优化
+
+linux 默认值 open files 和 max user processes 为 1024
+
+#ulimit -n
+
+1024
+
+#ulimit –u
+
+1024
+
+问题描写叙述： 说明 server 仅仅同意同一时候打开 1024 个文件，处理 1024 个用户进程
+
+使用ulimit -a 能够查看当前系统的全部限制值，使用ulimit -n 能够查看当前的最大打开文件数。
+
+新装的linux 默认仅仅有1024 。当作负载较大的server时，非常easy遇到error: too many open files 。
+
+因此，须要将其改大。
+
+ 
+
+解决方法：
+
+使用 ulimit –n 65535 可即时改动，但重新启动后就无效了。（注ulimit -SHn 65535 等效 ulimit -n 65535 。-S 指soft ，-H 指hard)
+
+有例如以下三种改动方式：
+
+1. 在/etc/rc.local 中添加一行 ulimit -SHn 65535
+2. 在/etc/profile 中添加一行 ulimit -SHn 65535
+3. 在/etc/security/limits.conf 最后添加：
+
+* soft nofile 65535
+* hard nofile 65535
+* soft nproc 65535
+* hard nproc 65535
+
+详细使用哪种，在 CentOS 中使用第1 种方式无效果，使用第3 种方式有效果。而在Debian 中使用第2 种有效果
+
+ # ulimit -n
+
+65535
+
+# ulimit -u
+
+65535
+
+备注：ulimit 命令本身就有分软硬设置。加-H 就是硬，加-S 就是软默认显示的是软限制
+
+soft 限制指的是当前系统生效的设置值。 hard 限制值可以被普通用户减少。可是不能添加。 soft 限制不能设置的比 hard 限制更高。 仅仅有 root 用户才可以添加 hard 限制值。

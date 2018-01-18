@@ -2,7 +2,7 @@ Content-Type: text/x-zim-wiki
 Wiki-Format: zim 0.4
 Creation-Date: 2012-06-06T17:13:02+08:00
 
-openssl genrsa -out cakey.pem 1024
+`openssl genrsa -out cakey.pem 1024
 openssl req -new -out careq.csr -key cakey.pem
 openssl x509 -req -in careq.csr -out cacert.pem -signkey cakey.pem -days 3650
 
@@ -32,7 +32,7 @@ openssl req -x509 -nodes -days 36500   -newkey rsa:1024    -keyout server.key -o
 
 # Generate the key.
 '''
-     ''mkdir -p demoCA/newcerts ''
+	 ''mkdir -p demoCA/newcerts ''
 ''openssl genrsa -out demoCA/ca.key''
 ''# Generate a certificate request.''
 ''openssl req -new -key demoCA/ca.key -out demoCA/ca.csr''
