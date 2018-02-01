@@ -1,0 +1,23 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-02-01T14:17:59+08:00
+
+====== svnweb ldap ======
+
+//Created Thursday 01 February 2018//
+
+//<Location /svn>//
+//  DAV svn//
+
+//  SVNParentPath /data/svn/repos//
+//  AuthzSVNAccessFile /data/svn/user//
+//  AuthBasicProvider ldap//
+//  AuthType Basic //
+//  AuthName "Subversion Repository"//
+
+//  AuthLDAPURL "ldap://localhost/ou=dev,dc=pico,dc=cn?uid?sub?(objectClass=*)" NONE//
+//  AuthLDAPBindDN "uid=openldap,ou=dev,dc=pico,dc=cn"//
+//  AuthLDAPBindPassword "openldap"//
+//  require valid-user//
+
+//</Location>//
