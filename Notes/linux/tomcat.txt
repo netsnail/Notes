@@ -8,11 +8,11 @@ keytool -genkey -v -alias tomcat -keyalg rsa -validity 3650  -keystore keystore.
 openssl genrsa -out 211.key 1024
 openssl req -new -key 211.key -out 211.csr
 
-keytool -genkey -alias tomcat.key -keyalg RSA -keystore keystore.jks
-keytool -certreq -keyalg RSA -alias tomcat.key -file tomcat.csr -keystore keystore.jks
+keytool -genkey -alias server -keyalg RSA -keystore keystore.jks
+keytool -certreq -keyalg RSA -alias server -file tomcat.csr -keystore keystore.jks
 http://ip/certsrv 
-keytool -import -alias ca.cer -keystore keystore.jks -trustcacerts -file ca.cer  
-keytool -import -alias tomcat.cer -keystore keystore.jks -file tomcat.cer  
+keytool -import -alias ca -keystore keystore.jks -trustcacerts -file ca.cer  
+keytool -import -alias server -keystore keystore.jks -file tomcat.cer  
 1)单向认证
 <Connector port="8443" maxThreads="200"  
 		   scheme="https" secure="true" SSLEnabled="true"  
