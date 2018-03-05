@@ -7,6 +7,7 @@ Created Wednesday 06 June 2012
 
 tar cf - . | tee >(ssh localhost 'cat > test1.tar') >(ssh localhost 'cat > test2.tar') >/dev/null
 
+( eval "cd ${NIFI_HOME} && ${run_nifi_cmd}" & )> /dev/null 1>&-
 
 ===== .bashrc =====
 export QEMU_AUDIO_DRV=alsa
