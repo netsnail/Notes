@@ -2,7 +2,7 @@ Content-Type: text/x-zim-wiki
 Wiki-Format: zim 0.4
 Creation-Date: 2012-06-06T17:13:02+08:00
 
-`openssl genrsa -out cakey.pem 1024
+openssl genrsa -out cakey.pem 1024
 openssl req -new -out careq.csr -key cakey.pem
 openssl x509 -req -in careq.csr -out cacert.pem -signkey cakey.pem -days 3650
 

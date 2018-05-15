@@ -27,20 +27,6 @@ CREATE TABLE `ftplog` (
 auth       optional     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
 account    required     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
 
-auth       optional     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
-account    required     pam_mysql.so host=127.0.0.1 user=root passwd=123456 db=ftp table=ftpuser usercolumn=username passwdcolumn=password where=status=1 crypt=0 sqllog=true logtable=ftplog logmsgcolumn=msg logusercolumn=username loghostcolumn=host logtimecolumn=create_time logpidcolumn=pid
-
-==== /etc/vsftpd/vsftpd_login.db ====
-#vusers.list
-user1
-user1pwd
-user2
-user2pwd
-# db_load -T -t hash -f vusers.list /etc/vsftpd/vsftpd_login.db
-# chmod 600 /etc/vsftpd/vsftpd_login.db
-# /etc/pam.d/vsftpd
-auth required pam_userdb.so db=/etc/vsftpd/vsftpd_login
-account required pam_userdb.so db=/etc/vsftpd/vsftpd_login
 
 ==== /etc/vsftpd/vsftpd.conf ====
 listen=YES
@@ -60,6 +46,21 @@ guest_username=vsftpd
 virtual_use_local_privs=YES
 pam_service_name=vsftpd
 user_config_dir=/etc/vsftpd_user_conf
+allow_writeable_chroot=YES
+xferlog_enable=YES
+
+
+==== /etc/vsftpd/vsftpd_login.db ====
+#vusers.list
+user1
+user1pwd
+user2
+user2pwd
+# db_load -T -t hash -f vusers.list /etc/vsftpd/vsftpd_login.db
+# chmod 600 /etc/vsftpd/vsftpd_login.db
+# /etc/pam.d/vsftpd
+auth required pam_userdb.so db=/etc/vsftpd/vsftpd_login
+account required pam_userdb.so db=/etc/vsftpd/vsftpd_login
 
 ==== /etc/vsftpd_user_conf ====
 [root@localhost ~]# vi /etc/vsftpd/user_config/xftpadmin
@@ -112,5 +113,6 @@ userlist_deny=NO
 userlist_enable=YES
 userlist_file=/etc/vsftpd.userlist
 tcp_wrappers=YES
+
 
 

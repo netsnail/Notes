@@ -2,168 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>New Page</title>
-</head><body><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 14pt">完全教程&nbsp;<span style="font-family: Calibri">Aircrack-ng</span>破解<span style="font-family: Calibri">WEP</span>、<span style="font-family: Calibri">WPA-PSK</span>加密利器</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: Cambria"><span style="font-size: 14pt">目录</span></span><br/>
-</div><br/>
-<span style="font-family: Calibri"><span style="font-size: 10pt">&nbsp;</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 10pt"><a href="#_Toc323323090">什么是Aircrack-ng</a></span></span><span style="font-size: 10pt"><a href="#_Toc323323090"><span style="font-family: Calibri">2</span></a></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 10pt"><a href="#_Toc323323091">使用Aircrack-ng破解WEP加密无线网络</a></span></span><span style="font-size: 10pt"><a href="#_Toc323323091"><span style="font-family: Calibri">3</span></a></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 10pt"><a href="#_Toc323323092">使用</a></span></span><span style="font-size: 10pt"><a href="#_Toc323323092"><span style="font-family: Times New Roman">Aircrack-ng</span><span style="font-family: 宋体">破解</span><span style="font-family: Times New Roman">WPA-PSK</span><span style="font-family: 宋体">加密无线网络</span><span style="font-family: Calibri">18</span></a></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 10pt"><a href="#_Toc323323093">使用</a></span></span><span style="font-size: 10pt"><a href="#_Toc323323093"><span style="font-family: Times New Roman">Aircrack-ng</span><span style="font-family: 宋体">破解</span><span style="font-family: Times New Roman">WPA2-PSK</span><span style="font-family: 宋体">加密无线网络</span><span style="font-family: Calibri">25</span></a></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 10pt"><a href="#_Toc323323094">使用Aircrack-ng进行无线破解的常见问题</a></span></span><span style="font-size: 10pt"><a href="#_Toc323323094"><span style="font-family: Calibri">27</span></a></span><br/>
-<span style="font-family: Calibri"><span style="font-size: 10pt">&nbsp;</span></span><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 14pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">其实关于无线基础知识的内容还是挺多的，但是由于本书侧重于BT4自身工具使用的讲解，若是再仔细讲述这些外围的知识，这就好比讲述DNS工具时还要把DNS服务器的类型、工作原理及配置讲述一遍一样，哈哈，估计整本书的厚度就需要再翻一、两倍了。恩，关于无线网络基础知识建议大家可以参考我之前在黑手这里出版的《无线黑客傻瓜书》一书，会很有帮助。</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">恩，先说明一下，本章的内容适用于目前市面所有主流品牌无线路由器或AP如Linksys、Dlink、TPLink、BelKin等。涉及内容包括了WEP加密及WPA-PSK加密的无线网络的破解操作实战。</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">什么是Aircrack-ng</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">Aircrack-ng是一款用于破解无线802.11WEP及WPA-PSK加密的工具，该工具在2005年11月之前名字是Aircrack，在其2.41版本之后才改名为Aircrack-ng。</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">Aircrack-ng主要使用了两种攻击方式进行WEP破解：一种是FMS攻击，该攻击方式是以发现该WEP漏洞的研究人员名字（Scott Fluhrer、Itsik&nbsp;Mantin及Adi&nbsp;Shamir）所命名；另一种是KoreK攻击，经统计，该攻击方式的攻击效率要远高于FMS攻击。当然，最新的版本又集成了更多种类型的攻击方式。对于无线黑客而言，Aircrack-ng是一款必不可缺的无线攻击工具，可以说很大一部分无线攻击都依赖于它来完成；而对于无线安全人员而言，Aircrack-ng也是一款必备的无线安全检测工具，它可以帮助管理员进行无线网络密码的脆弱性检查及了解无线网络信号的分布情况，非常适合对企业进行无线安全审计时使用。</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">Aircrack-ng（注意大小写）是一个包含了多款工具的无线攻击审计套装，这里面很多工具在后面的内容中都会用到，具体见下表1为Aircrack-ng包含的组件具体列表。</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">表1 </span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 12pt">组件名称</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 12pt">描</span></span><span style="font-size: 12pt"><span style="font-family: Verdana">&nbsp; &nbsp; </span><span style="font-family: 宋体">述</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Verdana"><span style="font-size: 12pt">aircrack-ng</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 12pt">主要用于</span></span><span style="font-size: 12pt"><span style="font-family: Verdana">WEP</span><span style="font-family: 宋体">及</span><span style="font-family: Verdana">WPA-PSK</span><span style="font-family: 宋体">密码的恢复，只要</span><span style="font-family: Verdana">airodump-ng</span><span style="font-family: 宋体">收集到足够数量的数据包，</span><span style="font-family: Verdana">aircrack-ng</span><span style="font-family: 宋体">就可以自动检测数据包并判断是否可以破解</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Verdana"><span style="font-size: 12pt">airmon-ng</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 12pt">用于改变无线网卡工作模式，以便其他工具的顺利使用</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Verdana"><span style="font-size: 12pt">airodump-ng</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 12pt">用于捕获</span></span><span style="font-size: 12pt"><span style="font-family: Verdana">802.11</span><span style="font-family: 宋体">数据报文，以便于</span><span style="font-family: Verdana">aircrack-ng</span><span style="font-family: 宋体">破解</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Verdana"><span style="font-size: 12pt">aireplay-ng</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 12pt">在进行</span></span><span style="font-size: 12pt"><span style="font-family: Verdana">WEP</span><span style="font-family: 宋体">及</span><span style="font-family: Verdana">WPA-PSK</span><span style="font-family: 宋体">密码恢复时，可以根据需要创建特殊的无线网络数据报文及流量</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Verdana"><span style="font-size: 12pt">airserv-ng</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 12pt">可以将无线网卡连接至某一特定端口，为攻击时灵活调用做准备</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Verdana"><span style="font-size: 12pt">airolib-ng</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 12pt">进行</span></span><span style="font-size: 12pt"><span style="font-family: Verdana">WPA&nbsp;Rainbow Table</span><span style="font-family: 宋体">攻击时使用，用于建立特定数据库文件</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Verdana"><span style="font-size: 12pt">airdecap-ng</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 12pt">用于解开处于加密状态的数据包</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Verdana"><span style="font-size: 12pt">tools</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 12pt">其他用于辅助的工具，如</span></span><span style="font-size: 12pt"><span style="font-family: Verdana">airdriver-ng</span><span style="font-family: 宋体">、</span><span style="font-family: Verdana">packetforge-ng</span><span style="font-family: 宋体">等</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">Aircrack-ng在&nbsp;BackTrack4 R2下已经内置（<a href="http://ftp.uio.no/pub/security/backtrack/bt4-r2.iso">下载BackTrack4 R2</a>），具体调用方法如下图2所示：通过依次选择菜单中BacktrackRadio&nbsp;Network Analysis 80211CrackingAircrack-ng&nbsp;，即可打开Aircrack-ng的主程序界面。也可以直接打开一个Shell，在里面直接输入aircrack-ng命令回车也能看到aircrack-ng的使用参数帮助。</span></span><br/>
-</div><br/>
-<div style="text-align: center"><img src="image.png" width="488" height="510" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图2</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">使用Aircrack-ng破解WEP加密无线网络</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">首先讲述破解采用WEP加密内容，启用此类型加密的无线网络往往已被列出严重不安全的网络环境之一。而Aircrack-ng正是破解此类加密的强力武器中的首选，关于使用Aircrack-ng套装破解WEP加密的具体步骤如下。</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">步骤1：载入无线网卡。</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">其实很多新人们老是在开始载入网卡的时候出现一些疑惑，所以我们就把这个基本的操作仔细看看。首先查看当前已经载入的网卡有哪些，输入命令如下：</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Courier New"><span style="font-size: 9pt">ifconfig</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">回车后可以看到如下图3所示内容，我们可以看到这里面除了eth0之外，并没有无线网卡。</span></span><br/>
-</div><br/>
-<div style="text-align: center"><img src="image 2.png" width="488" height="487" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图3</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">确保已经正确插入USB或者PCMCIA型无线网卡，此时，为了查看无线网卡是否已经正确连接至系统，应输入：</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Courier New"><span style="font-size: 9pt">ifconfig&nbsp;-a </span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">-a显示主机所有网络接口的情况。和单纯的ifconfig命令不同，加上-a参数后可以看到所有连接至当前系统网络接口的适配器。</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">如下图4所示，我们可以看到和上图3相比，出现了名为wlan0的无线网卡，这说明无线网卡已经被BackTrack4 R2 Linux识别。</span></span><br/>
-</div><br/>
-<div style="text-align: center"><img src="image 3.png" width="488" height="485" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图4</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">既然已经识别出来了，那么接下来就可以激活无线网卡了。说明一下，无论是有线还是无线网络适配器，都需要激活，否则是无法使用滴。这步就相当于Windows下将本地连接启用一样，不启用的连接是无法使用的。</span></span><br/>
-</div><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">在上图4中可以看到，出现了名为wlan0的无线网卡，OK，下面输入：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">ifconfig&nbsp;wlan0 up </span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">up用于加载网卡的，这里我们来将已经插入到笔记本的无线网卡载入驱动。在载入完毕后，我们可以再次使用ifconfig进行确认。如下图5所示，此时，系统已经正确识别出无线网卡了。</span></span><br/>
-<div style="text-align: center"><img src="image 4.png" width="488" height="486" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图5</span></span><br/>
-</div><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">当然，通过输入iwconfig查看也是可以滴。这个命令专用于查看无线网卡，不像ifconfig那样查看所有适配器。</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">iwconfig&nbsp;</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">该命令在Linux下用于查看有无无线网卡以及当前无线网卡状态。如下图6所示。</span></span><br/>
-<div style="text-align: center"><img src="image 5.png" width="488" height="336" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图6</span></span><br/>
-</div><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">步骤2：激活无线网卡至monitor即监听模式。</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">对于很多小黑来说，应该都用过各式各样的嗅探工具来抓取密码之类的数据报文。那么，大家也都知道，用于嗅探的网卡是一定要处于monitor监听模式地。对于无线网络的嗅探也是一样。</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">在Linux下，我们使用Aircrack-ng套装里的airmon-ng工具来实现，具体命令如下：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">airmon-ng&nbsp;start wlan0 </span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">start后跟无线网卡设备名称，此处参考前面ifconfig显示的无线网卡名称；</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">如下图7所示，我们可以看到无线网卡的芯片及驱动类型，在Chipset芯片类型上标明是Ralink&nbsp;2573芯片，默认驱动为rt73usb，显示为monitor&nbsp;mode enabled on mon0，即已启动监听模式，监听模式下适配器名称变更为mon0。</span></span><br/>
-<div style="text-align: center"><img src="image 6.png" width="488" height="320" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图7 </span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">步骤3：探测无线网络，抓取无线数据包。</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">在激活无线网卡后，我们就可以开启无线数据包抓包工具了，这里我们使用Aircrack-ng套装里的airmon-ng工具来实现，具体命令如下：</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">不过在正式抓包之前，一般都是先进行预来探测，来获取当前无线网络概况，包括AP的SSID、MAC地址、工作频道、无线客户端MAC及数量等。只需打开一个Shell，输入具体命令如下：</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Courier New"><span style="font-size: 9pt">airodump-ng&nbsp;mon0 </span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">mon0为之前已经载入并激活监听模式的无线网卡。如下图8所示。</span></span><br/>
-</div><br/>
-<div style="text-align: center"><img src="image 7.png" width="488" height="85" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图8</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">回车后，就能看到类似于下图9所示，这里我们就直接锁定目标是SSID为TP-LINK的AP，其BSSID（MAC）为00：19：E0：EB：33：66，工作频道为6，已连接的无线客户端MAC为00：1F：38：C9：71：71。</span></span><br/>
-</div><br/>
-<div style="text-align: center"><img src="image 8.png" width="488" height="293" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
-</div><br/>
-<div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图9</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">既然我们看到了本次测试要攻击的目标，就是那个SSID名为TP-LINK的无线路由器，接下来输入命令如下：</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: Courier New"><span style="font-size: 9pt">airodump-ng&nbsp;--ivs&nbsp;w&nbsp;longas&nbsp;-c 6 wlan0 </span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">--ivs这里的设置是通过设置过滤，不再将所有无线数据保存，而只是保存可用于破解的IVS数据报文，这样可以有效地缩减保存的数据包大小；</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">-c这里我们设置目标AP的工作频道，通过刚才的观察，我们要进行攻击测试的无线路由器工作频道为6；</span></span><br/>
-</div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">-w后跟要保存的文件名，这里w就是write写的意思，所以输入自己希望保持的文件名，如下图10所示我这里就写为longas。那么，小黑们一定要注意的是：这里我们虽然设置保存的文件名是longas，但是生成的文件却不是longase.ivs，而是longas-01.ivs。</span></span><br/>
+<title>aricrack-ng</title>
+</head><body><span style="font-family: 宋体"><span style="font-size: 9pt">\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\<div style="text-align: left">里就写为longas。那么，小黑们一定要注意的是：这里我们虽然设置保存的文件名是longas，但是生成的文件却不是longase.ivs，而是longas-01.ivs。</div></span></span><div style="text-align: left"><br/>
 </div><br/>
 <div style="text-align: center"><img src="image 9.png" width="488" height="76" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
 </div><br/>
@@ -180,8 +20,8 @@
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图11 </span></span><br/>
 </div><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">步骤4：对目标AP使用ArpRequest注入攻击</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">若连接着该无线路由器/AP的无线客户端正在进行大流量的交互，比如使用迅雷、电骡进行大文件下载等，则可以依靠单纯的抓包就可以破解出WEP密码。但是无线黑客们觉得这样的等待有时候过于漫长，于是就采用了一种称之为ARP&nbsp;Request的方式来读取ARP请求报文，并伪造报文再次重发出去，以便刺激AP产生更多的数据包，从而加快破解过程，这种方法就称之为ArpRequest注入攻击。具体输入命令如下：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">aireplay-ng&nbsp;-3 -b AP<span style="font-family: 宋体">的</span>mac&nbsp;-h <span style="font-family: 宋体">客户端的</span>mac&nbsp;mon0 </span></span><br/>
+<span style="font-family: 宋体"><span style="font-size: 9pt">若连接着该无线路由器/AP的无线客户端正在进行大流量的交互，比如使用迅雷、电骡进行大文件下载等，则可以依靠单纯的抓包就可以破解出WEP密码。但是无线黑客们觉得这样的等待有时候过于漫长，于是就采用了一种称之为ARP Request的方式来读取ARP请求报文，并伪造报文再次重发出去，以便刺激AP产生更多的数据包，从而加快破解过程，这种方法就称之为ArpRequest注入攻击。具体输入命令如下：</span></span><br/>
+<span style="font-family: Courier New"><span style="font-size: 9pt">aireplay-ng -3 -b AP<span style="font-family: 宋体">的</span>mac -h <span style="font-family: 宋体">客户端的</span>mac mon0 </span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">-3指采用ARPRequesr注入攻击模式；</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">-b后跟AP的MAC地址，这里就是前面我们探测到的SSID为TPLINK的AP的MAC；</span></span><br/>
@@ -206,7 +46,7 @@
 </div><br/>
 <div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">在抓取的无线数据报文达到了一定数量后，一般都是指IVs值达到2万以上时，就可以开始破解，若不能成功就等待数据报文的继续抓取然后多试几次。注意，此处不需要将进行注入攻击的Shell关闭，而是另外开一个Shell进行同步破解。输入命令如下：</span></span><br/>
 </div><br/>
-<div style="text-align: left"><span style="font-family: Courier New"><span style="font-size: 9pt">aircrack-ng&nbsp;<span style="font-family: 宋体">捕获的</span>ivs<span style="font-family: 宋体">文件&nbsp;</span></span></span><br/>
+<div style="text-align: left"><span style="font-family: Courier New"><span style="font-size: 9pt">aircrack-ng <span style="font-family: 宋体">捕获的</span>ivs<span style="font-family: 宋体">文件 </span></span></span><br/>
 </div><br/>
 <div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">关于IVs的值数量，我们可以从如下图15所示的界面中看到，当前已经接受到的IVs已经达到了1万5千以上，aircrack-ng已经尝试了41万个组合。</span></span><br/>
 </div><br/>
@@ -214,7 +54,7 @@
 </div><br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图15</span></span><br/>
 </div><br/>
-<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">那么经过很短时间的破解后，就可以看到如下图16中出现KEY&nbsp;FOUND的提示，紧跟后面的是16进制形式，再后面的ASCII部分就是密码啦，此时便可以使用该密码来连接目标AP了。 一般来说，破解64位的WEP至少需要1万IVs以上，但若是要确保破解的成功，应捕获尽可能多的IVs数据。比如下图16所示的高强度复杂密码破解成功依赖于8万多捕获的IVs。</span></span><br/>
+<div style="text-align: left"><span style="font-family: 宋体"><span style="font-size: 9pt">那么经过很短时间的破解后，就可以看到如下图16中出现KEY FOUND的提示，紧跟后面的是16进制形式，再后面的ASCII部分就是密码啦，此时便可以使用该密码来连接目标AP了。 一般来说，破解64位的WEP至少需要1万IVs以上，但若是要确保破解的成功，应捕获尽可能多的IVs数据。比如下图16所示的高强度复杂密码破解成功依赖于8万多捕获的IVs。</span></span><br/>
 </div><br/>
 <div style="text-align: center"><img src="image 15.png" width="488" height="345" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
 </div><br/>
@@ -239,14 +79,14 @@
 <span style="font-family: 宋体"><span style="font-size: 9pt">现在，你还认为自己的无线网络安全么？哈，这还只是个开始，我们接着往下看。</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">补充一下：</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">若希望捕获数据包时，能够不但是捕获包括IVS的内容，而是捕获所有的无线数据包，也可以在事后分析，那么可以使用如下命令：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">airodump-ng&nbsp;w&nbsp;longas&nbsp;-c 6 wlan0 </span></span><br/>
+<span style="font-family: Courier New"><span style="font-size: 9pt">airodump-ng w longas -c 6 wlan0 </span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">就是说，不再--ivs过滤，而是全部捕获，这样的话，捕获的数据包将不再是longas-01.ivs，而是longas-01.cap，请大家注意。命令如下图20所示。</span></span><br/>
 <div style="text-align: center"><img src="image 19.png" width="488" height="72" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
 </div><br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图20</span></span><br/>
 </div><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">同样地，在破解的时候，对象也变成了longas-*.cap。命令如下：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">aircrack-ng&nbsp;<span style="font-family: 宋体">捕获的</span>cap<span style="font-family: 宋体">文件&nbsp;</span></span></span><br/>
+<span style="font-family: Courier New"><span style="font-size: 9pt">aircrack-ng <span style="font-family: 宋体">捕获的</span>cap<span style="font-family: 宋体">文件 </span></span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">回车后如下图21所示，一样破解出了密码。</span></span><br/>
 <div style="text-align: center"><img src="image 20.png" width="488" height="331" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
 </div><br/>
@@ -261,7 +101,7 @@
 <span style="font-family: 宋体"><span style="font-size: 10pt">使用<span style="font-family: Times New Roman">Aircrack-ng</span>破解<span style="font-family: Times New Roman">WPA-PSK</span>加密无线网络</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">结合上小节的内容，下面继续是以BackTrack4 R2 Linux为环境，讲述破解WPA-PSK加密无线网络的具体步骤，详细如下。</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">步骤1：升级Aircrack-ng。</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">前面在第一章1.3节我们已经讲述了升级Aircrack-ng套装的详细步骤，这里也是一样，若条件允许，应将Aircrack-ng升级到最新的Aircrack-ng&nbsp;1.1版。由于前面我已经给出了详细的步骤，这里就不再重复。</span></span><br/>
+<span style="font-family: 宋体"><span style="font-size: 9pt">前面在第一章1.3节我们已经讲述了升级Aircrack-ng套装的详细步骤，这里也是一样，若条件允许，应将Aircrack-ng升级到最新的Aircrack-ng 1.1版。由于前面我已经给出了详细的步骤，这里就不再重复。</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">除此之外，为了更好地识别出无线网络设备及环境，最好对airodump-ng的OUI库进行升级，先进入到Aircrack-ng的安装目录下，然后输入命令如下：</span></span><br/>
 <span style="font-family: Courier New"><span style="font-size: 9pt">airodump-ng-oui-update </span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">回车后，就能看到如下图23所示的开始下载的提示，稍等一会儿，这个时间会比较长，恩，建议预先升级，不要临阵磨枪。</span></span><br/>
@@ -271,18 +111,18 @@
 </div><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">步骤2：载入并激活无线网卡至monitor即监听模式。</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">在进入BackTrack4 R2系统后，载入无线网卡的顺序及命令部分，依次输入下述命令：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">startx&nbsp;<span style="font-family: 宋体">进入到图形界面&nbsp;</span><br/>
-ifconfig&nbsp;a 查看无线网卡状态<br/>
-ifconfig&nbsp;wlan0 up 载入无线网卡驱动<br/>
-</span></span><span style="font-family: Courier New"><span style="font-size: 9pt">airmon-ng&nbsp;start wlan0 激活网卡到monitor<span style="font-family: 宋体">模式</span></span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">如下图24所示，我们可以看到无线网卡的芯片及驱动类型，在Chipset芯片类型上标明是Ralink&nbsp;2573芯片，默认驱动为rt73usb，显示为monitor&nbsp;mode enabled on mon0，即已启动监听模式，监听模式下适配器名称变更为mon0。</span></span><br/>
+<span style="font-family: Courier New"><span style="font-size: 9pt">startx <span style="font-family: 宋体">进入到图形界面 </span><br/>
+ifconfig a 查看无线网卡状态<br/>
+ifconfig wlan0 up 载入无线网卡驱动<br/>
+</span></span><span style="font-family: Courier New"><span style="font-size: 9pt">airmon-ng start wlan0 激活网卡到monitor<span style="font-family: 宋体">模式</span></span></span><br/>
+<span style="font-family: 宋体"><span style="font-size: 9pt">如下图24所示，我们可以看到无线网卡的芯片及驱动类型，在Chipset芯片类型上标明是Ralink 2573芯片，默认驱动为rt73usb，显示为monitor mode enabled on mon0，即已启动监听模式，监听模式下适配器名称变更为mon0。</span></span><br/>
 <div style="text-align: center"><img src="image 23.png" width="488" height="305" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
 </div><br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图24</span></span><br/>
 </div><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">步骤3：探测无线网络，抓取无线数据包。</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">在激活无线网卡后，我们就可以开启无线数据包抓包工具了，这里我们使用Aircrack-ng套装里的airodump-ng工具来实现，具体命令如下：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">airodump-ng&nbsp;-c 6 w&nbsp;longas&nbsp;mon0 </span></span><br/>
+<span style="font-family: Courier New"><span style="font-size: 9pt">airodump-ng -c 6 w longas mon0 </span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">-c这里我们设置目标AP的工作频道，通过观察，我们要进行攻击测试的无线路由器工作频道为6；</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">-w后跟要保存的文件名，这里w就是write写的意思，所以输入自己希望保持的文件名，这里我就写为longas。那么，小黑们一定要注意的是：这里我们虽然设置保存的文件名是longas，但是生成的文件却不是longas.cap，而是longas-01.cap。 </span></span><br/>
@@ -294,7 +134,7 @@ ifconfig&nbsp;wlan0 up 载入无线网卡驱动<br/>
 </div><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">步骤4：进行Deauth攻击加速破解过程。</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">和破解WEP时不同，这里为了获得破解所需的WPA-PSK握手验证的整个完整数据包，无线黑客们将会发送一种称之为Deauth的数据包来将已经连接至无线路由器的合法无线客户端强制断开，此时，客户端就会自动重新连接无线路由器，黑客们也就有机会捕获到包含WPA-PSK握手验证的完整数据包了。此处具体输入命令如下：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">aireplay-ng&nbsp;-0 1 a AP<span style="font-family: 宋体">的</span>mac&nbsp;-c <span style="font-family: 宋体">客户端的</span>mac&nbsp;wlan0 </span></span><br/>
+<span style="font-family: Courier New"><span style="font-size: 9pt">aireplay-ng -0 1 a AP<span style="font-family: 宋体">的</span>mac -c <span style="font-family: 宋体">客户端的</span>mac wlan0 </span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">-0采用deauth攻击模式，后面跟上攻击次数，这里我设置为1，大家可以根据实际情况设置为10不等；</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">-a后跟AP的MAC地址；</span></span><br/>
@@ -304,7 +144,7 @@ ifconfig&nbsp;wlan0 up 载入无线网卡驱动<br/>
 </div><br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图26</span></span><br/>
 </div><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">此时回到airodump-ng的界面查看，在下图27中我们可以看到在右上角出现了WPA&nbsp;handshake的提示，这表示获得到了包含WPA-PSK密码的4此握手数据报文，至于后面是目标AP的MAC，这里的AP指的就是要破解的无线路由器。</span></span><br/>
+<span style="font-family: 宋体"><span style="font-size: 9pt">此时回到airodump-ng的界面查看，在下图27中我们可以看到在右上角出现了WPA handshake的提示，这表示获得到了包含WPA-PSK密码的4此握手数据报文，至于后面是目标AP的MAC，这里的AP指的就是要破解的无线路由器。</span></span><br/>
 <div style="text-align: center"><img src="image 26.png" width="488" height="265" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
 </div><br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图27</span></span><br/>
@@ -316,7 +156,7 @@ ifconfig&nbsp;wlan0 up 载入无线网卡驱动<br/>
 </div><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">步骤5：开始破解WPA-PSK。</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">在成功获取到无线WPA-PSK验证数据报文后，就可以开始破解，输入命令如下：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">aircrack-ng&nbsp;-w&nbsp;dic&nbsp;<span style="font-family: 宋体">捕获的</span>cap<span style="font-family: 宋体">文件&nbsp;</span></span></span><br/>
+<span style="font-family: Courier New"><span style="font-size: 9pt">aircrack-ng -w dic <span style="font-family: 宋体">捕获的</span>cap<span style="font-family: 宋体">文件 </span></span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">-w后跟预先制作的字典，这里是BT4下默认携带的字典。</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">在回车后，若捕获数据中包含了多个无线网络的数据，也就是能看到多个SSID出现的情况。这就意味着其它AP的无线数据皆因为工作在同一频道而被同时截获到，由于数量很少所以对于破解来说没有意义。此处输入正确的选项即对应目标AP的MAC值，回车后即可开始破解。如下图29所示为命令输入情况。</span></span><br/>
@@ -329,13 +169,13 @@ ifconfig&nbsp;wlan0 up 载入无线网卡驱动<br/>
 </div><br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图30</span></span><br/>
 </div><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">经过不到1分多钟的等待，我们成功破解出了密码。如下图31所示，在KEY&nbsp;FOUND提示的右侧，可以看到密码已被破解出。密码明文为longaslast，破解速度约为450 key/s。若是能换成4核CPU的话，还能更快一些。</span></span><br/>
+<span style="font-family: 宋体"><span style="font-size: 9pt">经过不到1分多钟的等待，我们成功破解出了密码。如下图31所示，在KEY FOUND提示的右侧，可以看到密码已被破解出。密码明文为longaslast，破解速度约为450 key/s。若是能换成4核CPU的话，还能更快一些。</span></span><br/>
 <div style="text-align: center"><img src="image 30.png" width="488" height="382" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
 </div><br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图31 </span></span><br/>
 </div><br/>
 <span style="font-family: 宋体"><span style="font-size: 10pt">使用<span style="font-family: Times New Roman">Aircrack-ng</span>破解<span style="font-family: Times New Roman">WPA2-PSK</span>加密无线网络</span></span><br/>
-<span style="font-family: 宋体"><span style="font-size: 9pt">对于启用WPA2-PSK加密的无线网络，其攻击和破解步骤及工具是完全一样的，不同的是，在使用airodump-ng进行无线探测的界面上，会提示为WPA&nbsp;CCMP&nbsp;PSK。如下图32所示。</span></span><br/>
+<span style="font-family: 宋体"><span style="font-size: 9pt">对于启用WPA2-PSK加密的无线网络，其攻击和破解步骤及工具是完全一样的，不同的是，在使用airodump-ng进行无线探测的界面上，会提示为WPA CCMP PSK。如下图32所示。</span></span><br/>
 <div style="text-align: center"><img src="image 31.png" width="488" height="131" /><span style="font-family: 宋体"><span style="font-size: 9pt">&nbsp;</span></span><br/>
 </div><br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图32</span></span><br/>
@@ -346,7 +186,7 @@ ifconfig&nbsp;wlan0 up 载入无线网卡驱动<br/>
 <div style="text-align: center"><span style="font-family: 宋体"><span style="font-size: 9pt">图33</span></span><br/>
 </div><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">同样地，使用aircrack-ng进行破解，命令如下：</span></span><br/>
-<span style="font-family: Courier New"><span style="font-size: 9pt">aircrack-ng&nbsp;-w&nbsp;dic&nbsp;<span style="font-family: 宋体">捕获的</span>cap<span style="font-family: 宋体">文件&nbsp;</span></span></span><br/>
+<span style="font-family: Courier New"><span style="font-size: 9pt">aircrack-ng -w dic <span style="font-family: 宋体">捕获的</span>cap<span style="font-family: 宋体">文件 </span></span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">参数解释：</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">-w后跟预先制作的字典文件</span></span><br/>
 <span style="font-family: 宋体"><span style="font-size: 9pt">经过1分多钟的等待，可以在下图34中看到提示：KEY FOUND！后面即为WPA2-PSK连接密码19890305。</span></span><br/>
