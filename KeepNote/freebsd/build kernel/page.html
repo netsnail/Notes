@@ -7,38 +7,38 @@
 <br/>
 Login as Superuser:<br/>
 <br/>
-<b>su&nbsp;</b><br/>
+<b>su </b><br/>
 Install the Kernel Extension Package:<br/>
 <br/>
-<b>pkg&nbsp;install subversion compat6x-amd64</b><br/>
-FreeBSD&nbsp;10 Getting Started Searching and Installing Packages:<br/>
+<b>pkg install subversion compat6x-amd64</b><br/>
+FreeBSD 10 Getting Started Searching and Installing Packages:<br/>
 <br/>
-FreeBSD&nbsp;10 pkg&nbsp;Quick-Start<br/>
-FreeBSD&nbsp;10 Packages Management.<br/>
+FreeBSD 10 pkg Quick-Start<br/>
+FreeBSD 10 Packages Management.<br/>
 Install a Custom Kernel with Extensions<br/>
 <br/>
-Download the FreeBSD&nbsp;10 Distribution Sources<br/>
+Download the FreeBSD 10 Distribution Sources<br/>
 <br/>
-<b>svn&nbsp;co https://svn0.us-west.freebsd.org/base/stable/10 /usr/src</b><br/>
+<b>svn co https://svn0.us-west.freebsd.org/base/stable/10 /usr/src</b><br/>
 Here Take a Break Because you need to Wait for a Long Wile…<br/>
 <br/>
 Make a New Kernel Configuration File<br/>
 <br/>
-<b>cd&nbsp;/usr/src/sys/amd64/conf<br/>
-</b>If Do Not Know How to Proceed then You should Simply use the Default Config&nbsp;File:<br/>
+<b>cd /usr/src/sys/amd64/conf<br/>
+</b>If Do Not Know How to Proceed then You should Simply use the Default Config File:<br/>
 <br/>
-<b>cp&nbsp;GENERIC MYKERNEL</b><br/>
+<b>cp GENERIC MYKERNEL</b><br/>
 Build a Custom Kernel<br/>
 <br/>
-<b>cd&nbsp;/usr/src</b><br/>
-<b>make -j&nbsp;`sysctl&nbsp;-n&nbsp;hw.ncpu` buildworld<br/>
+<b>cd /usr/src</b><br/>
+<b>make -j `sysctl -n hw.ncpu` buildworld<br/>
 </b>Here Take another Time-Out Waiting for a Wile…<br/>
 <br/>
-<b>make -j&nbsp;`sysctl&nbsp;-n&nbsp;hw.ncpu` buildkernel&nbsp;KERNCONF=MYKERNEL</b><br/>
+<b>make -j `sysctl -n hw.ncpu` buildkernel KERNCONF=MYKERNEL</b><br/>
 Last Keep Patient and Still Wait Again for a While until the Process is Achieved with:<br/>
 <br/>
-Kernel build for MYKERNEL&nbsp;completed<br/>
+Kernel build for MYKERNEL completed<br/>
 <br/>
 Lastly Install the New Kernel<br/>
 <br/>
-<b>make installkernel&nbsp;KERNCONF=MYKERNEL</b></body></html>
+<b>make installkernel KERNCONF=MYKERNEL</b></body></html>

@@ -114,5 +114,21 @@ userlist_enable=YES
 userlist_file=/etc/vsftpd.userlist
 tcp_wrappers=YES
 
+==== vsftpd-local2.conf ====
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+local_umask=022
+dirmessage_enable=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+chown_uploads=YES
+chown_username=pico
+xferlog_std_format=YES
+listen=YES
+listen_ipv6=NO
+pam_service_name=vsftpd
+userlist_enable=YES
+tcp_wrappers=YES
 
 
