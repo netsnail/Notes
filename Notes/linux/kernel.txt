@@ -16,3 +16,13 @@ default:
 '''
 
 
+====== make menuconfig ======
+1. truecrypt Device Mapper, crypt target, xts(tfm)
+2. ipvadm 
+3. Bluetooth UART
+4. Wireless [[MediaTek]] MT7601U (小米wifi)
+5. Hardware Monitor -> Intel Core/Core2...
+6. Watchdog - Intel TCO
+7. Multimedia UVC
+8. Audio 2048 Pre-allocated buffer size, Realtek HD-audio, HDMI
+9. event helper [[/sbin/hotplug]]

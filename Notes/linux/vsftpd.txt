@@ -123,12 +123,14 @@ dirmessage_enable=YES
 xferlog_enable=YES
 connect_from_port_20=YES
 chown_uploads=YES
-chown_username=pico
+chown_username=ftp
 xferlog_std_format=YES
 listen=YES
 listen_ipv6=NO
 pam_service_name=vsftpd
 userlist_enable=YES
 tcp_wrappers=YES
+chroot_local_user=YES
+allow_writeable_chroot=YES
 
 
