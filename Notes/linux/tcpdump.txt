@@ -6,3 +6,21 @@ Creation-Date: 2012-06-07T10:42:44+08:00
 Created Thursday 07 June 2012
 
 ''tcpdump -i eth1 -s 0 -n -X host xx.xx.xx.xx and ‘tcp[tcpflags] & tcp-push != 0′''
+
+==== 三次握手： ====
+A:“喂，你听得到吗？”A->SYN_SEND
+
+B:“我听得到呀，你听得到我吗？”应答与请求同时发出 B->SYN_RCVD | A->ESTABLISHED
+
+A:“我能听到你，今天balabala……”B->ESTABLISHED
+
+==== 四次挥手： ====
+A:“喂，我不说了。”A->FIN_WAIT1
+
+B:“我知道了。等下，上一句还没说完。Balabala…..”B->CLOSE_WAIT | A->FIN_WAIT2
+
+B:”好了，说完了，我也不说了。”B->LAST_ACK
+
+A:”我知道了。”A->TIME_WAIT | B->CLOSED
+
+A等待2MSL,保证B收到了消息,否则重说一次”我知道了”,A->CLOSED
