@@ -1,0 +1,28 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2019-05-31T10:11:04+08:00
+
+====== tunnel ======
+Created Friday 31 May 2019
+
+remote:   
+	 sshd_config:  PermitTunnel yes
+
+proxy: 
+	 net.ipv4.ip_forward = 1
+
+	 ssh root@remote -w 0:0  -CNTfgn
+	 ip l set tun0 up
+	 ip a a 10.0.0.2/32 peer 10.0.0.1 dev tun0
+	 ip r a 192.168.122.0/24 via 10.0.0.1 dev tun0
+
+remote:
+	 ip l set tun0 up
+	 ip a a 10.0.0.1/32 peer 10.0.0.2 dev tun0
+
+
+proxy: 
+	 iptables -t nat -A POSTROUTING -d 192.168.122.0/24 -j MASQUERADE
+
+local:
+	 route add 192.168.0.0 mask 255.255.255.0 $proxy

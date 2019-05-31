@@ -6,3 +6,18 @@ Creation-Date: 2016-07-30T22:10:19+08:00
 Created Saturday 30 July 2016
 
 redsocks
+
+#!/bin/bash
+cd `dirname $0`
+
+pgrep redsocks || sudo ./redsocks
+sudo iptables -t nat -F
+
+[[ -n "$1" ]] && { sudo killall redsocks; exit 0; }
+
+sudo iptables -t nat -A OUTPUT -d 223.71.241.39/32 -j RETURN
+sudo iptables -t nat -A OUTPUT -d 127.0.0.0/8 -j RETURN
+sudo iptables -t nat -A OUTPUT -d 10.0.0.0/8 -j RETURN
+sudo iptables -t nat -A OUTPUT -d 172.16.0.0/16 -j RETURN
+sudo iptables -t nat -A OUTPUT -d 192.168.0.0/16 -j RETURN
+sudo iptables -t nat -A OUTPUT -p tcp -j REDIRECT --to-ports 23456
