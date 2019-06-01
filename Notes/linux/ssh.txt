@@ -11,6 +11,7 @@ Created Thursday 07 June 2012
 	ssh -p9622 xxx@xxx.com -CNfgD7777
 	curl --socks 127.0.0.1:7777 $url > $dst.file
 	ssh -o "ProxyCommand nc --proxy-type socks4 --proxy 127.0.0.1:8888 %h %p" user@ip
+	  ssh -o "ProxyCommand ssh -W %h:%p proxy:port" user@ip
 
 
 ===== .ssh/conf =====
