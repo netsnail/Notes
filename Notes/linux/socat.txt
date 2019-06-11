@@ -1,0 +1,14 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2019-06-11T10:04:21+08:00
+
+====== socat ======
+Created Tuesday 11 June 2019
+
+# 端口转发
+socat tcp-l:8080,reuseaddr,fork [[tcp4:ip:22]]
+nc -l -p 6667 < /tmp/fifo | nc -u 192.168.1.1 53 > /tmp/fifo
+
+# tcp转udp
+socat tcp4-l:7777,reuseaddr,fork [[udp:ip:2425]]
+

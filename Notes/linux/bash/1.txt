@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2019-06-11T10:22:55+08:00
+
+====== 1 ======
+Created Tuesday 11 June 2019
+
+python -m SimpleHTTPServer 8008 2>&1 |stdbuf -o0 awk '{match($0, /msg=([^ ]+) /,a);print a[1];}' | while read msg; do
