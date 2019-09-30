@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2019-07-05T10:31:24+08:00
+
+====== lvs ======
+Created Friday 05 July 2019
+
+ActiveConn是活动连接数,也就是tcp连接状态的ESTABLISHED;InActConn是指除了ESTABLISHED以外的,所有的其它状态的tcp连接, ipvsadm -L --timeout查看,默认是900 120 300,分别是TCP TCPFIN UDP的时间.也就是说一条tcp的连接经过lvs后,lvs会把这台记录保存15分钟,而不管这条连接是不是已经失效!所以如果你的服务器在15分钟以内有大量的并发请求连进来的时候,你就会看到这个数值直线上升.
+
