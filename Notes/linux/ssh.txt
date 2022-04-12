@@ -21,6 +21,10 @@ ip link set tun10 up
 #上海
 ip addr add 10.1.1.2 peer 10.1.1.1 dev tun10
 ip link set tun10 up
+route add -net 192.168.10.0/24 dev tun10
+iptables -t nat -A POSTROUTING -s 172.16.10.0/24 -d 192.168.10.0/24 -j SNAT --to 10.1.1.2
+route add -net 192.168.10.0/24 gw 172.16.10.4
+iptables -t nat -A POSTROUTING -s 10.1.1.2  -d 192.168.10.0/24  -j SNAT --to 192.168.10.4
 
 ===== .ssh/conf =====
 
