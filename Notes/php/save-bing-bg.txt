@@ -1,0 +1,15 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.6
+Creation-Date: 2022-04-12T15:20:52+08:00
+
+====== save-bing-bg ======
+Created Tuesday 12 April 2022
+
+#!/usr/bin/php
+<?php
+$dst="/home/tiger/background/";
+$p='/link rel="preload" href="\/th\?id=([^&]*).*" as="image" id="preloadBg"/';
+preg_match($p,file_get_contents("http://bing.com/"),$m); $f=$m[1];
+$uf="http://bing.com/th?id=".$f;
+if(!file_exists($dst.$f))file_put_contents($dst.$f,file_get_contents($uf));
+echo "get $uf -> $dst$f";
