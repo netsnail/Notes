@@ -1,24 +1,33 @@
 Content-Type: text/x-zim-wiki
-Wiki-Format: zim 0.4
+Wiki-Format: zim 0.6
 Creation-Date: 2012-06-07T10:31:16+08:00
 
 ====== ssh ======
 Created Thursday 07 June 2012
 
 * 实现远程端口映射
-	ssh -p9622 xxx@xxx.com -R 9801:localhost:22 -CNfg -o TCPKeepAlive=yes -o ServerAliveInterval=30
+	ssh -p9622 xxx@xxx.com -R 9801:localhost:22 -CNTfgnq -o TCPKeepAlive=yes -o ServerAliveInterval=30
 * [[proxy]]
 	ssh -p9622 xxx@xxx.com -CNfgD7777
 	curl --socks 127.0.0.1:7777 $url > $dst.file
 	ssh -o "ProxyCommand nc --proxy-type socks4 --proxy 127.0.0.1:8888 %h %p" user@ip
-	  ssh -o "ProxyCommand ssh -W %h:%p proxy:port" user@ip
+	ssh -o "ProxyCommand ssh -W %h:%p proxy:port" user@ip
 
+* 点对点tunnel
+ssh -o TCPKeepAlive=yes -o ServerAliveInterval=60 -f -w 10:10  2.2.2.2 true
+#北京
+ip addr add 10.1.1.1 peer 10.1.1.2 dev tun10
+ip link set tun10 up
+#上海
+ip addr add 10.1.1.2 peer 10.1.1.1 dev tun10
+ip link set tun10 up
 
 ===== .ssh/conf =====
 
 '''
 Host *
 	TCPKeepAlive yes
+	ServerAliveInterval 60
 	ForwardX11 yes
 
 Host xx.xx.xx.xx
