@@ -1,5 +1,5 @@
 Content-Type: text/x-zim-wiki
-Wiki-Format: zim 0.4
+Wiki-Format: zim 0.6
 Creation-Date: 2012-06-06T17:03:13+08:00
 
 ====== bash ======
@@ -170,10 +170,10 @@ echo ${str/%apple/APPLE}  # 如果字符串str以apple结尾，则用APPLE替换
 
 6. 比较
 
-[[ "a.txt" == a* ]]        # 逻辑真 (pattern matching)
-[[ "a.txt" =~ .*\.txt ]]   # 逻辑真 (regex matching)
-[[ "abc" == "abc" ]]       # 逻辑真 (string comparision) 
-[[ "11" < "2" ]]           # 逻辑真 (string comparision), 按ascii值比较
+ "a.txt" == a*         # 逻辑真 (pattern matching)
+ "a.txt" =~ .*\.txt    # 逻辑真 (regex matching)
+ "abc" == "abc"        # 逻辑真 (string comparision) 
+ "11" < "2"            # 逻辑真 (string comparision), 按ascii值比较
  
 7. 连接 
 

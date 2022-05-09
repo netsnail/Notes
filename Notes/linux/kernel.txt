@@ -1,5 +1,5 @@
 Content-Type: text/x-zim-wiki
-Wiki-Format: zim 0.4
+Wiki-Format: zim 0.6
 Creation-Date: 2012-06-07T10:30:10+08:00
 
 ====== kernel ======
@@ -20,7 +20,7 @@ default:
 1. truecrypt Device Mapper, crypt target, xts(tfm)
 2. ipvadm 
 3. Bluetooth UART
-4. Wireless [[MediaTek]] MT7601U (小米wifi)
+4. Wireless MediaTek MT7601U (小米wifi)
 5. Hardware Monitor -> Intel Core/Core2...
 6. Watchdog - Intel TCO
 7. Multimedia UVC

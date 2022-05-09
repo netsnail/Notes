@@ -1,5 +1,5 @@
 Content-Type: text/x-zim-wiki
-Wiki-Format: zim 0.4
+Wiki-Format: zim 0.6
 Creation-Date: 2012-06-06T17:02:39+08:00
 
 ====== linux ======
@@ -195,7 +195,7 @@ done
 mount "${root}" /newroot
 
 #Check if $init exists and is executable
-if [[ -x "/newroot/${init}" ]] ; then
+if  -x "/newroot/${init}"  ; then
 	#Unmount all other mounts so that the ram used by
 	#the initramfs can be cleared after switch_root
 	umount /sys /proc

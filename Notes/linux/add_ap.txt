@@ -42,7 +42,7 @@ get_macaddr() {
 }
 
 ARGS=$(getopt -o hc:w:g:d -l "help" -n $(basename $0) -- "$@")
-[[ $? -ne 0 ]] && exit 1
+ $? -ne 0  && exit 1
 eval set -- "$ARGS"
 
 CHANNEL=1
@@ -58,21 +58,21 @@ while :; do
 			;;
 		-c)
 			shift
-			if [[ -n "$1" ]]; then
+			if  -n "$1" ; then
 				CHANNEL="$1"
 				shift
 			fi
 			;;
 		-w)
 			shift
-			if [[ -n "$1" ]]; then
+			if  -n "$1" ; then
 				WPA_VERSION="$1"
 				shift
 			fi
 			;;
 		-g)
 			shift
-			if [[ -n "$1" ]]; then
+			if  -n "$1" ; then
 				GATEWAY="$1"
 				shift
 			fi
@@ -88,7 +88,7 @@ while :; do
 	esac
 done
 
-if [[ $# -ne 3 && $# -ne 4 ]]; then
+if  $# -ne 3 && $# -ne 4 ; then
 	usage
 	exit 1
 fi
@@ -98,7 +98,7 @@ INTERNET_IFACE=$2
 SSID=$3
 PASSPHRASE=$4
 
-if [[ $(id -u) -ne 0 ]]; then
+if  $(id -u) -ne 0 ; then
 	echo "You must run it as root."
 	exit 1
 fi
@@ -118,8 +118,8 @@ ctrl_interface=$CONFDIR/hostapd_ctrl
 ctrl_interface_group=0
 EOF
 
-if [[ -n "$PASSPHRASE" ]]; then
-	[[ "$WPA_VERSION" == "1+2" | "$WPA_VERSION" == "2+1" ]] && WPA_VERSION=3
+if  -n "$PASSPHRASE" ; then
+	 "$WPA_VERSION" == "2+1"  && WPA_VERSION=3
 	cat << EOF >> $CONFDIR/hostapd.conf
 wpa=${WPA_VERSION}
 wpa_passphrase=$4
@@ -137,7 +137,7 @@ dhcp-range=${GATEWAY%.*}.1,${GATEWAY%.*}.254,255.255.255.0,24h
 dhcp-option=option:router,${GATEWAY}
 EOF
 
-[[ $ETC_HOSTS -eq 0 ]] && echo no-hosts >> $CONFDIR/dnsmasq.conf
+ $ETC_HOSTS -eq 0  && echo no-hosts >> $CONFDIR/dnsmasq.conf
 
 # enable interface
 ip link set down dev ${WIFI_IFACE}
@@ -152,7 +152,7 @@ OLD_IP_FORWARD=$(cat /proc/sys/net/ipv4/ip_forward)
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
 # boost low-entropy
-if [[ $(cat /proc/sys/kernel/random/entropy_avail) -lt 1000 ]]; then
+if  $(cat /proc/sys/kernel/random/entropy_avail) -lt 1000 ; then
 	which haveged > /dev/null 2>&1 && {
 		haveged -w 1024 -p $CONFDIR/haveged.pid
 	}

@@ -1,5 +1,5 @@
 Content-Type: text/x-zim-wiki
-Wiki-Format: zim 0.4
+Wiki-Format: zim 0.6
 Creation-Date: 2012-06-14T08:59:23+08:00
 
 ===== Howto create an initramfs image =====
@@ -80,7 +80,7 @@ done
 mount "${root}" /newroot
 
 #Check if $init exists and is executable
-if  [[ -x "/newroot/${init}" ]] ; then
+if   -x "/newroot/${init}"  ; then
 	#Unmount all other mounts so that the ram used by
 	#the initramfs can be cleared after switch_root
 	umount /sys /proc
@@ -110,9 +110,9 @@ Kernel configuration
 The only thing you will need in the kernel is CONFIG_BLK_DEV_INITRD=y
 If you want to build your initramfs image into the kernel. This way you won't need to pass an initrd option to your bootloader, but when you update the initramfs image, you will also need to rebuild the kernel. If you do want to do this, give the path to the initramfs.cpio file in Initramfs source file(s).
 
-    General Setup --->
+	General Setup --->
 	[*] Initial RAM filesystem and RAM disk (initramfs/initrd) support
-       ()    Initramfs source file(s)
+	   ()    Initramfs source file(s)
 Grub configuration
 
 To pass the initramfs.igz to the kernel using Grub you will need the initrd option in menu.lst (grub.conf for Gentoo users).

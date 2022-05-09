@@ -1,5 +1,5 @@
 Content-Type: text/x-zim-wiki
-Wiki-Format: zim 0.4
+Wiki-Format: zim 0.6
 Creation-Date: 2012-06-06T17:02:45+08:00
 
 ====== nginx ======
@@ -197,14 +197,14 @@ LB2_IP=”204.54.1.2″
 # Do some smart logic so that we can use damm script on LB2 too
 OTHER_LB=”"
 SERVER_IP=”"
-[[ "$SERVER_IP" == "$LB1_IP" ]] && OTHER_LB=”$LB2_IP” || OTHER_LB=”$LB1_IP”
-[[ "$OTHER_LB" == "$LB2_IP" ]] && OPP_LB=”$LB1_IP” || OPP_LB=”$LB2_IP”
+ "$SERVER_IP" == "$LB1_IP"  && OTHER_LB=”$LB2_IP” || OTHER_LB=”$LB1_IP”
+ "$OTHER_LB" == "$LB2_IP"  && OPP_LB=”$LB1_IP” || OPP_LB=”$LB2_IP”
 ### IPs ###
 PUB_SSH_ONLY=”122.xx.yy.zz/29″
 #### FILES #####
 BLOCKED_IP_TDB=/root/.fw/blocked.ip.txt
 SPOOFIP=”127.0.0.0/8 192.168.0.0/16 172.16.0.0/12 10.0.0.0/8 169.254.0.0/16 0.0.0.0/8 240.0.0.0/4 255.255.255.255/32 168.254.0.0/16 224.0.0.0/4 240.0.0.0/5 248.0.0.0/5 192.0.2.0/24″
-BADIPS=$( [[ -f ${BLOCKED_IP_TDB} ]] && egrep -v “^#|^$” ${BLOCKED_IP_TDB})
+BADIPS=$(  -f ${BLOCKED_IP_TDB}  && egrep -v “^#|^$” ${BLOCKED_IP_TDB})
 ### Interfaces ###
 PUB_IF=”eth0″   # public interface
 LO_IF=”lo”      # loopback
